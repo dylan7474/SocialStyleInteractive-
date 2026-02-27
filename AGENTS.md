@@ -31,7 +31,7 @@ Then manually verify in a browser:
 - Totals update correctly.
 - Import/export still works for JSON files.
 - Results render correctly and print styles still hide controls.
-- If `team.html` is touched: team upload works, dashboard metrics render, and synergy comparisons update for selected members.
+- If `team.html` is touched: team upload works, dashboard metrics render, synergy comparisons update for selected members, and Extended Deep-Dive mode can be toggled/analysed.
 
 ## Documentation Expectations
 

@@ -61,6 +61,7 @@ http://localhost:8000/team.html
 - **Team Dashboard:** Review member distribution and aggregate style balance.
 - **Interaction Lab:** Review recommendations based on team composition.
 - **Team Synergy:** Compare any two members and inspect likely collaboration/tension patterns.
+- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` to compare baseline style signals vs contextual style shifts.
 
 ## Validation checklist (manual)
 
@@ -77,6 +78,7 @@ Then verify:
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
 - (`team.html`) Multi-file upload works and team/synergy tabs populate correctly.
+- (`team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
 
 ## Roadmap
 
