@@ -49,7 +49,12 @@
                 <button id="exportFileBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-sm">Export My JSON</button>
                 <button id="importFileBtn" class="bg-white text-slate-700 border border-slate-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all shadow-sm">Import Previous</button>
                 <input type="file" id="fileInput" class="hidden" accept=".json">
+                <button id="toggleExtendedBtn" class="bg-white text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-50 transition-all shadow-sm">Enable Extended Deep-Dive</button>
                 <button id="resetBtn" class="bg-rose-50 text-rose-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all ml-auto">Reset Form</button>
+            </div>
+
+            <div id="extendedNotice" class="no-print hidden px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs text-indigo-800 font-medium">
+                Extended mode enabled: complete 10 ranking sets to unlock deeper signal analysis (core vs extended trend, style stability, and adaptability range).
             </div>
 
             <div id="assessmentContainer" class="no-print">
@@ -87,6 +92,10 @@
                             <strong>Facilitator Tip:</strong> Your lowest score often represents your "blind spot." To increase your versatility, practice borrowing behaviors from that quadrant when dealing with stressful situations.
                         </div>
                     </div>
+                </div>
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-black text-slate-800 mb-3">Extended Signal Insights</h3>
+                    <div id="advancedInsights"></div>
                 </div>
                 <div id="styleProfiles" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
@@ -233,13 +242,26 @@
 
     <script type="module">
         // Shared Logic & Data
-        const traitsData = [
+        const coreTraitsData = [
             { id: 0, label: "01", col1: "Directing", col2: "Influencing", col3: "Steady", col4: "Cautious" },
             { id: 1, label: "02", col1: "Decisive", col2: "Optimistic", col3: "Patient", col4: "Restrained" },
             { id: 2, label: "03", col1: "Daring", col2: "Enthusiastic", col3: "Stabilising", col4: "Analytical" },
             { id: 3, label: "04", col1: "Competitive", col2: "Talkative", col3: "Accommodating", col4: "Precise" },
             { id: 4, label: "05", col1: "Forceful", col2: "Charming", col3: "Easy-going", col4: "Curious" }
         ];
+
+        // Optional extension for facilitators who want a richer second-pass signal.
+        const extendedTraitsData = [
+            { id: 5, label: "06", col1: "Take charge", col2: "Inspire", col3: "Support", col4: "Verify" },
+            { id: 6, label: "07", col1: "Push pace", col2: "Build excitement", col3: "Create harmony", col4: "Protect quality" },
+            { id: 7, label: "08", col1: "Challenge quickly", col2: "Storytell", col3: "Mediate", col4: "Question assumptions" },
+            { id: 8, label: "09", col1: "Own outcomes", col2: "Spot possibilities", col3: "Keep trust", col4: "Reduce errors" },
+            { id: 9, label: "10", col1: "Act now", col2: "Engage people", col3: "Seek consensus", col4: "Request clarity" }
+        ];
+
+        let extendedModeEnabled = false;
+
+        const getActiveTraitsData = () => extendedModeEnabled ? coreTraitsData.concat(extendedTraitsData) : coreTraitsData;
 
         const styleDetails = {
             col1: { name: "Driver", color: "#ef4444", characteristics: "Results focused, task oriented, likes control, can be impatient.", influence: ["Be fast/decisive", "Be succinct", "Focus on results"], goodDay: ["Efficient", "Determined"], badDay: ["Controlling", "Demanding"], increase: ["Patience", "Listening", "Empathy"], decrease: ["Directiveness", "Urgency", "Interrupting"], groupStrengths: ["Quick decisions", "Goal clarity", "Execution focus"], groupRisks: ["Lack of empathy", "Burnout", "Missed details"] },
@@ -248,7 +270,7 @@
             col4: { name: "Analytical", color: "#3b82f6", characteristics: "Precision, accuracy, orderly, persistent, high standards.", influence: ["Be logical/specific", "Include research", "Don't be over-friendly"], goodDay: ["Precise", "Rational"], badDay: ["Stubborn", "Nitpicking"], increase: ["Responsiveness", "Decision speed", "Informality"], decrease: ["Data-dumping", "Perfectionism", "Caution"], groupStrengths: ["Accuracy", "Quality Control", "Methodical approach"], groupRisks: ["Analysis paralysis", "Rigidity", "Lack of warmth"] }
         };
 
-        let userResponses = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
+        let userResponses = {};
         let teamData = [];
 
         window.switchTab = (tabId) => {
@@ -262,56 +284,134 @@
         };
 
         const questionRowsContainer = document.getElementById('questionRows');
-        traitsData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.className = "bg-white shadow-sm rounded-xl row-invalid border border-slate-100 transition-all duration-300";
-            tr.id = `row-${row.id}`;
-            let rowHtml = `<td class="p-4 font-black text-slate-300 text-sm border-r border-slate-50">${row.label}</td>`;
-            [1, 2, 3, 4].forEach(cIdx => {
-                rowHtml += `<td class="p-3 text-center min-w-[120px]">
-                    <div class="font-bold text-slate-600 mb-2 text-[10px] uppercase tracking-tight">${row['col' + cIdx]}</div>
-                    <div class="flex justify-center gap-1">
-                        ${[1, 2, 3, 4].map(val => `<button data-row="${row.id}" data-col="${cIdx}" data-val="${val}" class="rank-btn w-6 h-6 rounded-full text-[9px] font-bold border border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 focus:outline-none">${val}</button>`).join('')}
-                    </div>
-                </td>`;
-            });
-            tr.innerHTML = rowHtml;
-            questionRowsContainer.appendChild(tr);
-        });
 
-        document.querySelectorAll('.rank-btn').forEach(btn => {
-            btn.onclick = () => {
-                const r = btn.dataset.row;
-                const c = btn.dataset.col;
-                const v = parseInt(btn.dataset.val);
-                Object.keys(userResponses[r]).forEach(colKey => { if (userResponses[r][colKey] === v && colKey !== c) delete userResponses[r][colKey]; });
-                userResponses[r][c] = v;
-                updateGridUI();
-            };
-        });
+        function initResponseBuckets() {
+            const previousResponses = userResponses;
+            userResponses = {};
+            getActiveTraitsData().forEach(row => {
+                userResponses[row.id] = previousResponses[row.id] || {};
+            });
+        }
+
+        function renderQuestionGrid() {
+            const activeRows = getActiveTraitsData();
+            questionRowsContainer.innerHTML = '';
+            activeRows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-white shadow-sm rounded-xl row-invalid border border-slate-100 transition-all duration-300";
+                tr.id = `row-${row.id}`;
+                let rowHtml = `<td class="p-4 font-black text-slate-300 text-sm border-r border-slate-50">${row.label}</td>`;
+                [1, 2, 3, 4].forEach(cIdx => {
+                    rowHtml += `<td class="p-3 text-center min-w-[120px]">
+                        <div class="font-bold text-slate-600 mb-2 text-[10px] uppercase tracking-tight">${row['col' + cIdx]}</div>
+                        <div class="flex justify-center gap-1">
+                            ${[1, 2, 3, 4].map(val => `<button data-row="${row.id}" data-col="${cIdx}" data-val="${val}" class="rank-btn w-6 h-6 rounded-full text-[9px] font-bold border border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 focus:outline-none">${val}</button>`).join('')}
+                        </div>
+                    </td>`;
+                });
+                tr.innerHTML = rowHtml;
+                questionRowsContainer.appendChild(tr);
+            });
+
+            document.querySelectorAll('.rank-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const r = btn.dataset.row;
+                    const c = btn.dataset.col;
+                    const v = parseInt(btn.dataset.val);
+                    Object.keys(userResponses[r]).forEach(colKey => { if (userResponses[r][colKey] === v && colKey !== c) delete userResponses[r][colKey]; });
+                    userResponses[r][c] = v;
+                    updateGridUI();
+                };
+            });
+        }
+
+        function calculateScoresForRows(rows) {
+            const totals = [0, 0, 0, 0];
+            rows.forEach(row => {
+                const res = userResponses[row.id] || {};
+                for (let i = 1; i <= 4; i++) {
+                    if (res[i]) totals[i - 1] += res[i];
+                }
+            });
+            return totals;
+        }
+
+        function updateAdvancedInsights(coreScores, extendedScores) {
+            const insightEl = document.getElementById('advancedInsights');
+            if (!extendedModeEnabled) {
+                insightEl.innerHTML = `<div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-500">Enable Extended Deep-Dive to unlock trend stability and adaptability analysis.</div>`;
+                return;
+            }
+
+            const styleKeys = ['col1', 'col2', 'col3', 'col4'];
+            const totalDiff = coreScores.map((score, idx) => Math.abs(score - extendedScores[idx]));
+            const maxDiff = Math.max(...totalDiff);
+            const stableStyleIdx = totalDiff.indexOf(Math.min(...totalDiff));
+            const shiftingStyleIdx = totalDiff.indexOf(maxDiff);
+            const totalCore = coreScores.reduce((a, b) => a + b, 0);
+            const totalExtended = extendedScores.reduce((a, b) => a + b, 0);
+            const normalizedGap = Math.round((totalDiff.reduce((a, b) => a + b, 0) / Math.max(1, totalCore + totalExtended)) * 100);
+
+            insightEl.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <div class="text-[10px] font-black uppercase text-emerald-700">Most Stable Signal</div>
+                        <div class="font-black text-slate-800 mt-1">${styleDetails[styleKeys[stableStyleIdx]].name}</div>
+                        <p class="text-xs text-emerald-800 mt-1">Your core and extended rankings stay closely aligned here.</p>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                        <div class="text-[10px] font-black uppercase text-amber-700">Biggest Context Shift</div>
+                        <div class="font-black text-slate-800 mt-1">${styleDetails[styleKeys[shiftingStyleIdx]].name}</div>
+                        <p class="text-xs text-amber-800 mt-1">This style moved most between baseline and extended prompts.</p>
+                    </div>
+                    <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                        <div class="text-[10px] font-black uppercase text-indigo-700">Adaptability Range</div>
+                        <div class="font-black text-slate-800 mt-1">${normalizedGap}%</div>
+                        <p class="text-xs text-indigo-800 mt-1">Higher values suggest stronger situational style flexing.</p>
+                    </div>
+                </div>`;
+        }
 
         function updateGridUI() {
+            const activeRows = getActiveTraitsData();
             let completeRows = 0;
-            let colTotals = [0, 0, 0, 0];
             document.querySelectorAll('.rank-btn').forEach(btn => {
                 const r = btn.dataset.row;
                 const c = btn.dataset.col;
                 const v = parseInt(btn.dataset.val);
-                if (userResponses[r][c] === v) { btn.classList.add('active', 'border-indigo-600', 'bg-indigo-600', 'text-white'); } 
+                if (userResponses[r] && userResponses[r][c] === v) { btn.classList.add('active', 'border-indigo-600', 'bg-indigo-600', 'text-white'); }
                 else { btn.classList.remove('active', 'border-indigo-600', 'bg-indigo-600', 'text-white'); }
             });
-            traitsData.forEach(row => {
-                const res = userResponses[row.id];
+
+            activeRows.forEach(row => {
+                const res = userResponses[row.id] || {};
                 const rowEl = document.getElementById(`row-${row.id}`);
                 if (Object.keys(res).length === 4) { rowEl.classList.add('row-complete'); completeRows++; } else { rowEl.classList.remove('row-complete'); }
-                for (let i = 1; i <= 4; i++) { if (res[i]) colTotals[i - 1] += res[i]; }
             });
-            document.getElementById('progressDisplay').textContent = `${completeRows} of 5 rows complete`;
-            document.getElementById('submitBtn').disabled = (completeRows < 5);
-            return colTotals;
+
+            document.getElementById('progressDisplay').textContent = `${completeRows} of ${activeRows.length} rows complete`;
+            document.getElementById('submitBtn').disabled = (completeRows < activeRows.length);
+
+            const coreScores = calculateScoresForRows(coreTraitsData);
+            const extendedScores = calculateScoresForRows(extendedTraitsData);
+            const totalScores = coreScores.map((score, idx) => score + (extendedModeEnabled ? extendedScores[idx] : 0));
+            return { totalScores, coreScores, extendedScores };
         }
 
-        function drawMap(canvasId, dataset, isTeam = false) {
+        function setExtendedMode(enabled) {
+            extendedModeEnabled = enabled;
+            document.getElementById('extendedNotice').classList.toggle('hidden', !enabled);
+            document.getElementById('toggleExtendedBtn').textContent = enabled ? 'Disable Extended Deep-Dive' : 'Enable Extended Deep-Dive';
+            initResponseBuckets();
+            renderQuestionGrid();
+            updateGridUI();
+        }
+
+        initResponseBuckets();
+        renderQuestionGrid();
+        updateGridUI();
+
+        function drawMap(canvasId, dataset, isTeam = false, maxScore = 20) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             const cx = canvas.width / 2;
@@ -337,7 +437,7 @@
             ctx.moveTo(cx, cy - radius); ctx.lineTo(cx, cy + radius);
             ctx.stroke();
             const getCoord = (score, angle) => {
-                const scaledR = (score / 20) * radius;
+                const scaledR = (score / maxScore) * radius;
                 return { x: cx + scaledR * Math.cos(angle), y: cy + scaledR * Math.sin(angle) };
             };
             if (!isTeam) {
@@ -372,8 +472,12 @@
                     const text = await file.text();
                     const responses = JSON.parse(text);
                     const scores = [0, 0, 0, 0];
-                    Object.keys(responses).forEach(r => { for (let c = 1; c <= 4; c++) scores[c-1] += responses[r][c] || 0; });
-                    teamData.push({ name: file.name.replace('.json', ''), scores });
+                    const responseRows = Object.keys(responses).filter(r => /^\d+$/.test(r));
+                    responseRows.forEach(r => {
+                        if (typeof responses[r] !== 'object' || responses[r] === null) return;
+                        for (let c = 1; c <= 4; c++) scores[c-1] += responses[r][c] || 0;
+                    });
+                    teamData.push({ name: file.name.replace('.json', ''), scores, maxScore: Math.max(20, responseRows.length * 4) });
                 } catch (err) { console.error("Bad file", file.name); }
             }
             if (teamData.length > 0) renderTeamDashboard();
@@ -382,11 +486,12 @@
 
         function renderTeamDashboard() {
             document.getElementById('teamAnalysisGrid').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
-            drawMap('teamMapChart', teamData, true);
+            const teamMaxScore = Math.max(20, ...teamData.map(m => m.maxScore || 20));
+            drawMap('teamMapChart', teamData, true, teamMaxScore);
             document.getElementById('teamMemberList').innerHTML = teamData.map(m => `
                 <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100 shadow-sm text-[10px] font-bold">
                     <span class="truncate max-w-[120px]">${m.name}</span>
-                    <div class="flex gap-1">${m.scores.map((s, i) => `<div class="w-1.5 h-1.5 rounded-full" style="background-color: ${Object.values(styleDetails)[i].color}; opacity: ${s/20}"></div>`).join('')}</div>
+                    <div class="flex gap-1">${m.scores.map((s, i) => `<div class=\"w-1.5 h-1.5 rounded-full\" style=\"background-color: ${Object.values(styleDetails)[i].color}; opacity: ${Math.min(1, s / (m.maxScore || 20))}\"></div>`).join('')}</div>
                 </div>`).join('');
             const counts = [0, 0, 0, 0], averages = [0, 0, 0, 0];
             teamData.forEach(m => { counts[m.scores.indexOf(Math.max(...m.scores))]++; m.scores.forEach((s, i) => averages[i] += s); });
@@ -530,18 +635,29 @@
             const scores = updateGridUI();
             document.getElementById('assessmentContainer').classList.add('hidden');
             document.getElementById('resultsSection').classList.remove('hidden');
-            drawMap('kiteChart', scores);
-            document.getElementById('scoreSummary').innerHTML = Object.keys(styleDetails).map((k, i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100"><span class="font-bold text-slate-700">${styleDetails[k].name}</span><span class="font-black text-xl">${scores[i]}</span></div>`).join('');
+            const maxScore = getActiveTraitsData().length * 4;
+            drawMap('kiteChart', scores.totalScores, false, maxScore);
+            document.getElementById('scoreSummary').innerHTML = Object.keys(styleDetails).map((k, i) => {
+                const coreText = `Core: ${scores.coreScores[i]}`;
+                const extendedText = extendedModeEnabled ? ` | Extended: ${scores.extendedScores[i]}` : '';
+                return `<div class="p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center justify-between"><span class="font-bold text-slate-700">${styleDetails[k].name}</span><span class="font-black text-xl">${scores.totalScores[i]}</span></div><div class="text-[10px] text-slate-400 font-semibold mt-1">${coreText}${extendedText}</div></div>`;
+            }).join('');
+            updateAdvancedInsights(scores.coreScores, scores.extendedScores);
             document.getElementById('styleProfiles').innerHTML = Object.keys(styleDetails).map((k, i) => `<div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm"><div class="flex items-center gap-2 mb-2"><div class="w-3 h-3 rounded-full" style="background-color: ${styleDetails[k].color}"></div><h4 class="font-black text-slate-800">${styleDetails[k].name}</h4></div><p class="text-xs text-slate-500 italic">${styleDetails[k].characteristics}</p></div>`).join('');
         };
 
         document.getElementById('exportFileBtn').onclick = () => { const blob = new Blob([JSON.stringify(userResponses)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `my-social-style.json`; a.click(); };
+        document.getElementById('toggleExtendedBtn').onclick = () => setExtendedMode(!extendedModeEnabled);
         document.getElementById('importFileBtn').onclick = () => document.getElementById('fileInput').click();
         document.getElementById('fileInput').onchange = async (e) => {
             if (!e.target.files || e.target.files.length === 0) return;
             try {
                 const text = await e.target.files[0].text();
-                userResponses = JSON.parse(text);
+                const imported = JSON.parse(text);
+                const importedRows = Object.keys(imported).filter(r => /^\d+$/.test(r));
+                const shouldEnableExtended = importedRows.some(r => Number(r) >= 5);
+                setExtendedMode(shouldEnableExtended);
+                importedRows.forEach(r => { if (typeof imported[r] === 'object' && imported[r] !== null) userResponses[r] = imported[r]; });
                 updateGridUI();
             } catch (err) { alert("Invalid assessment file."); }
             e.target.value = '';
@@ -549,7 +665,7 @@
         
         document.getElementById('resetBtn').onclick = () => { 
             if(confirm("Reset assessment? This will clear all ranks and hide current results.")) { 
-                userResponses = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} }; 
+                initResponseBuckets();
                 updateGridUI(); 
                 document.getElementById('assessmentContainer').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');
