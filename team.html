@@ -285,8 +285,8 @@
 
         const questionRowsContainer = document.getElementById('questionRows');
 
-        function initResponseBuckets() {
-            const previousResponses = userResponses;
+        function initResponseBuckets(preserveExisting = true) {
+            const previousResponses = preserveExisting ? userResponses : {};
             userResponses = {};
             getActiveTraitsData().forEach(row => {
                 userResponses[row.id] = previousResponses[row.id] || {};
@@ -665,7 +665,11 @@
         
         document.getElementById('resetBtn').onclick = () => { 
             if(confirm("Reset assessment? This will clear all ranks and hide current results.")) { 
-                initResponseBuckets();
+                extendedModeEnabled = false;
+                document.getElementById('extendedNotice').classList.add('hidden');
+                document.getElementById('toggleExtendedBtn').textContent = 'Enable Extended Deep-Dive';
+                initResponseBuckets(false);
+                renderQuestionGrid();
                 updateGridUI(); 
                 document.getElementById('assessmentContainer').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');

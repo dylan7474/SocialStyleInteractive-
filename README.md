@@ -62,6 +62,7 @@ http://localhost:8000/team.html
 - **Interaction Lab:** Review recommendations based on team composition.
 - **Team Synergy:** Compare any two members and inspect likely collaboration/tension patterns.
 - **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` to compare baseline style signals vs contextual style shifts.
+- **Reset Form (team assessment):** Clears all ranked rows, returns to baseline 5-row mode, and hides current analysis results.
 
 ## Validation checklist (manual)
 
