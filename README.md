@@ -11,9 +11,10 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository now includes two static HTML entry points:
+This repository includes three static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
+- **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
   - individual assessment,
   - team dashboard (multi-file upload and aggregate view),
@@ -28,7 +29,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open either `index.html` or `team.html` in a modern browser.
+2. Open `index.html`, `profile.html`, or `team.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -41,12 +42,13 @@ Then open one of:
 
 ```text
 http://localhost:8000/index.html
+http://localhost:8000/profile.html
 http://localhost:8000/team.html
 ```
 
 ## Basic controls
 
-### Individual assessment (both versions)
+### Individual assessment (`index.html` and `profile.html`)
 
 - **Rank buttons (1–4):** For each row, assign each rank exactly once across the four traits.
 - **Total Scores:** Auto-updates as you complete each set.
@@ -54,6 +56,13 @@ http://localhost:8000/team.html
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
 - **Print:** Use the browser print dialog to generate a printable version of results.
+
+### Profile Deep-Dive controls (`profile.html`)
+
+- **Enable Extended Deep-Dive:** Adds 5 more ranking sets (10 total) while preserving any existing core answers.
+- **Core / Extended score breakdown:** Results separate the baseline 5-set score from the extended 5-set score.
+- **Extended Signal Insights:** Shows the most stable style signal, biggest context shift, and an adaptability range percentage after analysis.
+- **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode.
 
 ### Team-specific controls (`team.html`)
 
@@ -79,7 +88,7 @@ Then verify:
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
 - (`team.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
+- (`profile.html` and `team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
 
 ## Roadmap
 
