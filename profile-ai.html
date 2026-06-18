@@ -445,7 +445,7 @@
         }
 
         let latestAnalysisContext = null;
-        let promptApiStatus = { available: false, message: 'Not checked yet.' };
+        let promptApiStatus = { available: false, canAttempt: false, message: 'Not checked yet.' };
 
         function getLanguageModelApi() {
             if ('LanguageModel' in window) return window.LanguageModel;
@@ -454,24 +454,58 @@
             return null;
         }
 
-        async function refreshPromptApiStatus() {
+        function setAiStatus(message, statusType = 'waiting') {
             const statusEl = document.getElementById('aiStatus');
+            const statusClasses = {
+                ready: 'bg-emerald-50 border-emerald-100 text-emerald-800',
+                waiting: 'bg-amber-50 border-amber-100 text-amber-800',
+                error: 'bg-rose-50 border-rose-100 text-rose-800'
+            };
+            statusEl.textContent = message;
+            statusEl.className = `mb-4 p-4 rounded-2xl border text-sm ${statusClasses[statusType] || statusClasses.waiting}`;
+        }
+
+        function updateAiButtonState() {
             const button = document.getElementById('generateAiFeedbackBtn');
+            button.disabled = !promptApiStatus.canAttempt || !latestAnalysisContext;
+        }
+
+        async function getPromptAvailability(api) {
+            if (typeof api.availability === 'function') return api.availability();
+            if (typeof api.canCreateTextSession === 'function') return api.canCreateTextSession();
+            return null;
+        }
+
+        function isPromptReady(availability) {
+            return availability === 'available' || availability === 'readily';
+        }
+
+        function isPromptDownloadable(availability) {
+            return availability === 'downloadable' || availability === 'after-download';
+        }
+
+        async function refreshPromptApiStatus() {
             const api = getLanguageModelApi();
             if (!api) {
-                promptApiStatus = { available: false, message: 'Chrome Prompt API was not detected. Use a supported Chrome desktop version with built-in AI enabled.' };
-            } else if (typeof api.availability === 'function') {
-                const availability = await api.availability();
-                promptApiStatus = { available: availability === 'available' || availability === 'readily', message: `Prompt API status: ${availability}. ${availability === 'downloadable' || availability === 'after-download' ? 'Chrome may need to download Gemini Nano before feedback can run.' : ''}` };
-            } else if (typeof api.canCreateTextSession === 'function') {
-                const availability = await api.canCreateTextSession();
-                promptApiStatus = { available: availability === 'readily' || availability === 'available', message: `Legacy Prompt API status: ${availability}.` };
+                promptApiStatus = { available: false, canAttempt: false, message: 'Chrome Prompt API was not detected. Use a supported Chrome desktop version with built-in AI enabled.' };
             } else {
-                promptApiStatus = { available: typeof api.create === 'function' || typeof api.createTextSession === 'function', message: 'Prompt API detected. Availability details are not exposed in this Chrome build.' };
+                const availability = await getPromptAvailability(api);
+                if (availability) {
+                    const ready = isPromptReady(availability);
+                    const downloadable = isPromptDownloadable(availability);
+                    const downloadMessage = downloadable ? ' Click Generate AI Feedback to let Chrome download Gemini Nano, then the feedback will run automatically.' : '';
+                    promptApiStatus = {
+                        available: ready,
+                        canAttempt: ready || downloadable,
+                        message: `Prompt API status: ${availability}.${downloadMessage}`
+                    };
+                } else {
+                    const canCreate = typeof api.create === 'function' || typeof api.createTextSession === 'function';
+                    promptApiStatus = { available: canCreate, canAttempt: canCreate, message: 'Prompt API detected. Availability details are not exposed in this Chrome build.' };
+                }
             }
-            statusEl.textContent = promptApiStatus.message;
-            statusEl.className = `mb-4 p-4 rounded-2xl border text-sm ${promptApiStatus.available ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-amber-50 border-amber-100 text-amber-800'}`;
-            button.disabled = !promptApiStatus.available || !latestAnalysisContext;
+            setAiStatus(promptApiStatus.message, promptApiStatus.available ? 'ready' : 'waiting');
+            updateAiButtonState();
         }
 
         function buildAiPrompt(context) {
@@ -502,18 +536,32 @@ Keep it supportive, concrete, and under 450 words.`;
             let session;
             try {
                 const prompt = buildAiPrompt(latestAnalysisContext);
+                const sessionOptions = {
+                    systemPrompt: 'You write concise workplace coaching feedback from assessment scores.',
+                    monitor(monitor) {
+                        monitor.addEventListener('downloadprogress', (event) => {
+                            const loaded = Number.isFinite(event.loaded) ? Math.round(event.loaded * 100) : null;
+                            const progress = loaded === null ? '' : ` (${loaded}%)`;
+                            setAiStatus(`Downloading Gemini Nano for Chrome Prompt API${progress}... Keep this tab open.`, 'waiting');
+                            output.textContent = `Downloading the on-device AI model${progress}. Feedback will start automatically when the download completes.`;
+                        });
+                    }
+                };
                 if (typeof api.create === 'function') {
-                    session = await api.create({ systemPrompt: 'You write concise workplace coaching feedback from assessment scores.' });
+                    session = await api.create(sessionOptions);
                 } else {
-                    session = await api.createTextSession({ systemPrompt: 'You write concise workplace coaching feedback from assessment scores.' });
+                    session = await api.createTextSession(sessionOptions);
                 }
+                promptApiStatus = { ...promptApiStatus, available: true, canAttempt: true };
+                setAiStatus('Prompt API ready. Generating private on-device feedback...', 'ready');
                 const response = await session.prompt(prompt);
                 output.textContent = response.trim();
             } catch (error) {
-                output.textContent = `AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled and the Gemini Nano model is available.`;
+                output.textContent = `AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`;
+                await refreshPromptApiStatus();
             } finally {
                 if (session && typeof session.destroy === 'function') session.destroy();
-                button.disabled = !promptApiStatus.available;
+                updateAiButtonState();
             }
         }
 

@@ -70,7 +70,7 @@ http://localhost:8000/team.html
 
 - **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores.
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key.
-- **Availability note:** If the Prompt API is unavailable or the model still needs to download, the page shows a status message and keeps the standard non-AI report available.
+- **Availability note:** If the Prompt API is unavailable, the page shows a status message and keeps the standard non-AI report available. If Chrome reports the model as downloadable, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
 
 ### Team-specific controls (`team.html`)
 
