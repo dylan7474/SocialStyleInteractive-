@@ -445,7 +445,19 @@
         }
 
         let latestAnalysisContext = null;
-        let promptApiStatus = { available: false, canAttempt: false, message: 'Not checked yet.' };
+        let promptApiStatus = { available: false, canAttempt: false, message: 'Not checked yet.', fallbackPrompt: false };
+
+        async function copyTextToClipboard(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (error) {
+                console.warn('Clipboard API copy failed; falling back to manual selection.', error);
+            }
+            return false;
+        }
 
         function getLanguageModelApi() {
             if ('LanguageModel' in window) return window.LanguageModel;
@@ -467,7 +479,8 @@
 
         function updateAiButtonState() {
             const button = document.getElementById('generateAiFeedbackBtn');
-            button.disabled = !promptApiStatus.canAttempt || !latestAnalysisContext;
+            button.disabled = !latestAnalysisContext;
+            button.textContent = promptApiStatus.canAttempt ? 'Generate AI Feedback' : 'Copy AI Prompt';
         }
 
         async function getPromptAvailability(api) {
@@ -481,30 +494,35 @@
         }
 
         function isPromptDownloadable(availability) {
-            return availability === 'downloadable' || availability === 'after-download';
+            return availability === 'downloadable' || availability === 'after-download' || availability === 'downloading';
         }
 
         async function refreshPromptApiStatus() {
-            const api = getLanguageModelApi();
-            if (!api) {
-                promptApiStatus = { available: false, canAttempt: false, message: 'Chrome Prompt API was not detected. Use a supported Chrome desktop version with built-in AI enabled.' };
-            } else {
-                const availability = await getPromptAvailability(api);
-                if (availability) {
-                    const ready = isPromptReady(availability);
-                    const downloadable = isPromptDownloadable(availability);
-                    const downloadMessage = downloadable ? ' Click Generate AI Feedback to let Chrome download Gemini Nano, then the feedback will run automatically.' : '';
-                    promptApiStatus = {
-                        available: ready,
-                        canAttempt: ready || downloadable,
-                        message: `Prompt API status: ${availability}.${downloadMessage}`
-                    };
+            try {
+                const api = getLanguageModelApi();
+                if (!api) {
+                    promptApiStatus = { available: false, canAttempt: false, fallbackPrompt: true, message: 'Chrome Prompt API was not detected. You can still copy the generated prompt below into your preferred AI tool.' };
                 } else {
-                    const canCreate = typeof api.create === 'function' || typeof api.createTextSession === 'function';
-                    promptApiStatus = { available: canCreate, canAttempt: canCreate, message: 'Prompt API detected. Availability details are not exposed in this Chrome build.' };
+                    const availability = await getPromptAvailability(api);
+                    if (availability) {
+                        const ready = isPromptReady(availability);
+                        const downloadable = isPromptDownloadable(availability);
+                        const downloadMessage = downloadable ? ' Click Generate AI Feedback to let Chrome download Gemini Nano, then the feedback will run automatically.' : '';
+                        promptApiStatus = {
+                            available: ready,
+                            canAttempt: ready || downloadable,
+                            fallbackPrompt: !ready && !downloadable,
+                            message: ready || downloadable ? `Prompt API status: ${availability}.${downloadMessage}` : `Prompt API status: ${availability}. You can still copy the generated prompt below into your preferred AI tool.`
+                        };
+                    } else {
+                        const canCreate = typeof api.create === 'function' || typeof api.createTextSession === 'function';
+                        promptApiStatus = { available: canCreate, canAttempt: canCreate, fallbackPrompt: !canCreate, message: canCreate ? 'Prompt API detected. Availability details are not exposed in this Chrome build.' : 'Prompt API shape was detected, but no supported session creator was found. You can still copy the generated prompt below.' };
+                    }
                 }
+            } catch (error) {
+                promptApiStatus = { available: false, canAttempt: false, fallbackPrompt: true, message: `Chrome Prompt API availability could not be checked (${error.message || error}). You can still copy the generated prompt below.` };
             }
-            setAiStatus(promptApiStatus.message, promptApiStatus.available ? 'ready' : 'waiting');
+            setAiStatus(promptApiStatus.message, promptApiStatus.available ? 'ready' : (promptApiStatus.canAttempt ? 'waiting' : 'error'));
             updateAiButtonState();
         }
 
@@ -530,12 +548,18 @@ Keep it supportive, concrete, and under 450 words.`;
             const output = document.getElementById('aiFeedbackOutput');
             const button = document.getElementById('generateAiFeedbackBtn');
             const api = getLanguageModelApi();
-            if (!latestAnalysisContext || !api) return;
+            if (!latestAnalysisContext) return;
+            const prompt = buildAiPrompt(latestAnalysisContext);
+            if (!api || !promptApiStatus.canAttempt) {
+                const copied = await copyTextToClipboard(prompt);
+                setAiStatus(copied ? 'Chrome Prompt API is unavailable, so the AI-ready prompt was copied to your clipboard.' : 'Chrome Prompt API is unavailable. Select and copy the AI-ready prompt below into your preferred AI tool.', copied ? 'ready' : 'waiting');
+                output.textContent = prompt;
+                return;
+            }
             button.disabled = true;
             output.textContent = 'Generating on-device AI feedback...';
             let session;
             try {
-                const prompt = buildAiPrompt(latestAnalysisContext);
                 const sessionOptions = {
                     systemPrompt: 'You write concise workplace coaching feedback from assessment scores.',
                     monitor(monitor) {
@@ -559,6 +583,10 @@ Keep it supportive, concrete, and under 450 words.`;
             } catch (error) {
                 output.textContent = `AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`;
                 await refreshPromptApiStatus();
+                if (!promptApiStatus.canAttempt) {
+                    const copied = await copyTextToClipboard(prompt);
+                    output.textContent = `${copied ? 'The AI-ready prompt was copied to your clipboard because on-device generation failed.' : 'On-device generation failed. Select and copy this AI-ready prompt into your preferred AI tool.'}\n\n${prompt}`;
+                }
             } finally {
                 if (session && typeof session.destroy === 'function') session.destroy();
                 updateAiButtonState();
