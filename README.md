@@ -52,7 +52,7 @@ http://localhost:8000/team.html
 
 - **Rank buttons (1–4):** For each row, assign each rank exactly once across the four traits.
 - **Total Scores:** Auto-updates as you complete each set.
-- **Export:** Saves your current assessment responses to a local JSON file.
+- **Export:** Saves your current assessment responses to a local JSON file. In `profile.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
 - **Print:** Use the browser print dialog to generate a printable version of results.
