@@ -68,7 +68,7 @@ http://localhost:8000/team.html
 
 ### AI profile controls (`profile-ai.html`)
 
-- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores.
+- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is displayed as styled report sections so headings, bullets, and coaching actions match the rest of the results page.
 - **Copy AI Prompt fallback:** If the Prompt API is unavailable or cannot be checked, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool.
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.

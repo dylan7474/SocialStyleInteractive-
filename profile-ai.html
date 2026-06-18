@@ -14,6 +14,18 @@
         .rank-btn.active { transform: scale(1.1); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         
         canvas { max-width: 100%; height: auto; }
+        .ai-feedback-formatted { white-space: normal; }
+        .ai-feedback-formatted.plain { white-space: pre-wrap; }
+        .ai-feedback-formatted h3 { margin: 1.25rem 0 0.5rem; font-size: 1rem; font-weight: 900; color: #1e293b; }
+        .ai-feedback-formatted h3:first-child { margin-top: 0; }
+        .ai-feedback-formatted p { margin: 0.5rem 0; color: #475569; }
+        .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.5rem 0 1rem 1.25rem; color: #475569; }
+        .ai-feedback-formatted li { margin: 0.4rem 0; padding-left: 0.15rem; }
+        .ai-feedback-formatted strong { color: #334155; font-weight: 800; }
+        .ai-feedback-formatted .ai-title { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; font-size: 1.25rem; font-weight: 900; color: #312e81; }
+        .ai-feedback-formatted .ai-section { margin-top: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 1rem; background: #ffffff; }
+        .ai-feedback-formatted .ai-section h3 { display: flex; align-items: center; gap: 0.5rem; }
+        .ai-feedback-formatted .ai-section h3::before { content: ''; display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 999px; background: #6366f1; }
         
         @media print {
             .no-print { display: none !important; }
@@ -158,7 +170,7 @@
                     <button id="generateAiFeedbackBtn" class="bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Feedback</button>
                 </div>
                 <div id="aiStatus" class="mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Checking Chrome Prompt API availability...</div>
-                <div id="aiFeedbackOutput" class="prose prose-slate max-w-none text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-2xl p-5 min-h-[120px]">Complete the assessment, then generate AI coaching feedback for your profile.</div>
+                <div id="aiFeedbackOutput" class="ai-feedback-formatted max-w-none text-sm leading-relaxed bg-slate-50 border border-slate-100 rounded-2xl p-5 min-h-[120px]">Complete the assessment, then generate AI coaching feedback for your profile.</div>
             </div>
 
             <div id="styleProfiles" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20"></div>
@@ -544,8 +556,104 @@ Return concise Markdown with these headings:
 Keep it supportive, concrete, and under 450 words.`;
         }
 
-        async function generateAiFeedback() {
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatInlineMarkdown(value) {
+            return escapeHtml(value)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/__(.*?)__/g, '<strong>$1</strong>');
+        }
+
+        function renderAiFeedback(markdownText) {
             const output = document.getElementById('aiFeedbackOutput');
+            output.classList.remove('plain');
+            const lines = markdownText.replace(/\\n/g, '\n').split(/\r?\n/);
+            const html = [];
+            let listType = null;
+            let sectionOpen = false;
+
+            const closeList = () => {
+                if (listType) {
+                    html.push(`</${listType}>`);
+                    listType = null;
+                }
+            };
+            const closeSection = () => {
+                closeList();
+                if (sectionOpen) {
+                    html.push('</section>');
+                    sectionOpen = false;
+                }
+            };
+
+            lines.forEach(rawLine => {
+                const line = rawLine.trim();
+                if (!line) {
+                    closeList();
+                    return;
+                }
+
+                const titleMatch = line.match(/^##\s+(.+)$/);
+                if (titleMatch) {
+                    closeSection();
+                    html.push(`<div class="ai-title">${formatInlineMarkdown(titleMatch[1])}</div>`);
+                    return;
+                }
+
+                const headingMatch = line.match(/^###\s+(?:\d+\.\s*)?(.+)$/) || line.match(/^\d+\.\s+([^:]+)$/);
+                if (headingMatch) {
+                    closeSection();
+                    sectionOpen = true;
+                    html.push('<section class="ai-section">');
+                    html.push(`<h3>${formatInlineMarkdown(headingMatch[1])}</h3>`);
+                    return;
+                }
+
+                const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+                if (bulletMatch) {
+                    if (listType !== 'ul') {
+                        closeList();
+                        html.push('<ul>');
+                        listType = 'ul';
+                    }
+                    html.push(`<li>${formatInlineMarkdown(bulletMatch[1])}</li>`);
+                    return;
+                }
+
+                const numberedMatch = line.match(/^\d+\.\s+(.*)$/);
+                if (numberedMatch) {
+                    if (listType !== 'ol') {
+                        closeList();
+                        html.push('<ol>');
+                        listType = 'ol';
+                    }
+                    html.push(`<li>${formatInlineMarkdown(numberedMatch[1])}</li>`);
+                    return;
+                }
+
+                closeList();
+                html.push(`<p>${formatInlineMarkdown(line)}</p>`);
+            });
+
+            closeSection();
+            output.innerHTML = html.join('') || escapeHtml(markdownText);
+        }
+
+        function setPlainAiOutput(message) {
+            const output = document.getElementById('aiFeedbackOutput');
+            output.classList.add('plain');
+            output.textContent = message;
+        }
+
+        async function generateAiFeedback() {
             const button = document.getElementById('generateAiFeedbackBtn');
             const api = getLanguageModelApi();
             if (!latestAnalysisContext) return;
@@ -553,11 +661,11 @@ Keep it supportive, concrete, and under 450 words.`;
             if (!api || !promptApiStatus.canAttempt) {
                 const copied = await copyTextToClipboard(prompt);
                 setAiStatus(copied ? 'Chrome Prompt API is unavailable, so the AI-ready prompt was copied to your clipboard.' : 'Chrome Prompt API is unavailable. Select and copy the AI-ready prompt below into your preferred AI tool.', copied ? 'ready' : 'waiting');
-                output.textContent = prompt;
+                setPlainAiOutput(prompt);
                 return;
             }
             button.disabled = true;
-            output.textContent = 'Generating on-device AI feedback...';
+            setPlainAiOutput('Generating on-device AI feedback...');
             let session;
             try {
                 const sessionOptions = {
@@ -567,7 +675,7 @@ Keep it supportive, concrete, and under 450 words.`;
                             const loaded = Number.isFinite(event.loaded) ? Math.round(event.loaded * 100) : null;
                             const progress = loaded === null ? '' : ` (${loaded}%)`;
                             setAiStatus(`Downloading Gemini Nano for Chrome Prompt API${progress}... Keep this tab open.`, 'waiting');
-                            output.textContent = `Downloading the on-device AI model${progress}. Feedback will start automatically when the download completes.`;
+                            setPlainAiOutput(`Downloading the on-device AI model${progress}. Feedback will start automatically when the download completes.`);
                         });
                     }
                 };
@@ -579,13 +687,13 @@ Keep it supportive, concrete, and under 450 words.`;
                 promptApiStatus = { ...promptApiStatus, available: true, canAttempt: true };
                 setAiStatus('Prompt API ready. Generating private on-device feedback...', 'ready');
                 const response = await session.prompt(prompt);
-                output.textContent = response.trim();
+                renderAiFeedback(response.trim());
             } catch (error) {
-                output.textContent = `AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`;
+                setPlainAiOutput(`AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`);
                 await refreshPromptApiStatus();
                 if (!promptApiStatus.canAttempt) {
                     const copied = await copyTextToClipboard(prompt);
-                    output.textContent = `${copied ? 'The AI-ready prompt was copied to your clipboard because on-device generation failed.' : 'On-device generation failed. Select and copy this AI-ready prompt into your preferred AI tool.'}\n\n${prompt}`;
+                    setPlainAiOutput(`${copied ? 'The AI-ready prompt was copied to your clipboard because on-device generation failed.' : 'On-device generation failed. Select and copy this AI-ready prompt into your preferred AI tool.'}\n\n${prompt}`);
                 }
             } finally {
                 if (session && typeof session.destroy === 'function') session.destroy();
