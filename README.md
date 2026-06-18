@@ -11,10 +11,11 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository includes three static HTML entry points:
+This repository includes four static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
+- **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
   - individual assessment,
   - team dashboard (multi-file upload and aggregate view),
@@ -29,7 +30,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open `index.html`, `profile.html`, or `team.html` in a modern browser.
+2. Open `index.html`, `profile.html`, `profile-ai.html`, or `team.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -43,26 +44,33 @@ Then open one of:
 ```text
 http://localhost:8000/index.html
 http://localhost:8000/profile.html
+http://localhost:8000/profile-ai.html
 http://localhost:8000/team.html
 ```
 
 ## Basic controls
 
-### Individual assessment (`index.html` and `profile.html`)
+### Individual assessment (`index.html`, `profile.html`, and `profile-ai.html`)
 
 - **Rank buttons (1–4):** For each row, assign each rank exactly once across the four traits.
 - **Total Scores:** Auto-updates as you complete each set.
-- **Export:** Saves your current assessment responses to a local JSON file. In `profile.html`, add your name before exporting to include a sanitized version of it in the filename.
+- **Export:** Saves your current assessment responses to a local JSON file. In `profile.html` and `profile-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
 - **Print:** Use the browser print dialog to generate a printable version of results.
 
-### Profile Deep-Dive controls (`profile.html`)
+### Profile Deep-Dive controls (`profile.html` and `profile-ai.html`)
 
 - **Enable Extended Deep-Dive:** Adds 5 more ranking sets (10 total) while preserving any existing core answers.
 - **Core / Extended score breakdown:** Results separate the baseline 5-set score from the extended 5-set score.
 - **Extended Signal Insights:** Shows the most stable style signal, biggest context shift, and an adaptability range percentage after analysis.
 - **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode.
+
+### AI profile controls (`profile-ai.html`)
+
+- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores.
+- **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key.
+- **Availability note:** If the Prompt API is unavailable or the model still needs to download, the page shows a status message and keeps the standard non-AI report available.
 
 ### Team-specific controls (`team.html`)
 
@@ -88,7 +96,8 @@ Then verify:
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
 - (`team.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`profile.html` and `team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
+- (`profile.html`, `profile-ai.html`, and `team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
+- (`profile-ai.html`) Chrome Prompt API availability status appears after analysis and AI feedback can be generated in a supported Chrome desktop browser.
 
 ## Roadmap
 
