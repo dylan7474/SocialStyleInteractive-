@@ -15,7 +15,7 @@ This repository includes four static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
-- **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available.
+- **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available, with generated Markdown rendered into styled report sections and a copyable fallback prompt for unsupported browsers.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
   - individual assessment,
   - team dashboard (multi-file upload and aggregate view),
@@ -68,8 +68,8 @@ http://localhost:8000/team.html
 
 ### AI profile controls (`profile-ai.html`)
 
-- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is displayed as styled report sections so headings, bullets, and coaching actions match the rest of the results page.
-- **Copy AI Prompt fallback:** If the Prompt API is unavailable or cannot be checked, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool.
+- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is rendered into styled report sections so headings, bullets, numbered actions, and emphasis match the rest of the results page.
+- **Copy AI Prompt fallback:** If the Prompt API is unavailable, cannot be checked, or on-device generation fails, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool. The fallback prompt is shown as plain text to make copying easy.
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
 
@@ -102,13 +102,15 @@ Then verify:
 
 ## Roadmap
 
-Short-term ideas for improving this app:
+Potential improvements and next steps:
 
-1. Improve accessibility (keyboard navigation + ARIA labels for rank buttons).
-2. Add optional report export (PDF summary with chart and key takeaways).
-3. Add multi-assessment history tracking (before/after coaching snapshots).
-4. Expand team-level facilitation prompts for conflict and decision rituals.
-5. Add lightweight test coverage for score calculation and import/export validation.
+1. **Accessibility pass:** Add keyboard-first ranking workflows, ARIA labels/states for rank buttons, focus-visible styling, and a screen-reader-friendly results summary.
+2. **Report exports:** Add an optional printable/PDF report template that includes the kite chart, score table, primary style narrative, AI coaching summary when present, and facilitator notes.
+3. **Assessment history:** Support local before/after snapshots so individuals and teams can compare coaching progress over time without adding a backend.
+4. **Team facilitation depth:** Expand team-level prompts for conflict patterns, decision rituals, meeting norms, onboarding, and manager coaching conversations.
+5. **AI experience hardening:** Add clearer browser support guidance for Chrome Prompt API/Gemini Nano, persist the copied fallback prompt state, and consider a non-AI coaching-template mode for locked-down environments.
+6. **Data quality checks:** Warn users about incomplete imports, duplicate participant names in team uploads, and unusual score ties before analysis/export.
+7. **Lightweight automated tests:** Add dependency-light tests for scoring, extended-mode toggles, JSON import/export compatibility, Markdown feedback rendering, and prompt fallback behavior.
 
 ## License
 
