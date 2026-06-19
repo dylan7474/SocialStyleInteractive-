@@ -52,11 +52,11 @@
             #resultsSection h3 { font-size: 12pt !important; margin-bottom: 0.06in !important; }
             #kiteChart { width: 2.05in !important; height: 2.05in !important; margin: 0 auto; }
             #kiteChart + div { margin-top: 0.08in !important; padding: 0.08in !important; font-size: 7.6pt !important; line-height: 1.2 !important; }
-            #scoreSummary { gap: 0.04in !important; }
-            #scoreSummary > div { padding: 0.065in !important; border: 1px solid #cbd5e1 !important; }
-            #scoreSummary + div { padding: 0.08in !important; font-size: 7.8pt !important; line-height: 1.2 !important; }
+            #scoreSummary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.045in !important; }
+            #scoreSummary > div { padding: 0.045in !important; border: 1px solid #cbd5e1 !important; }
+            #scoreSummary + div { padding: 0.06in !important; font-size: 7.4pt !important; line-height: 1.15 !important; }
             #advancedInsights > div { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 0.06in !important; }
-            #advancedInsights > div > div { padding: 0.07in !important; }
+            #advancedInsights > div > div { padding: 0.055in !important; }
             #advancedInsights p { font-size: 7.2pt !important; line-height: 1.15 !important; }
             #aiFeedbackPanel { padding: 0.14in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-before: page; page-break-before: always; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
             #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.16in; margin-bottom: 0.08in !important; padding-bottom: 0.07in; border-bottom: 1px solid #cbd5e1; }
@@ -191,15 +191,15 @@
                         <p>The shape of your kite represents your <strong>strength of preference</strong>. Points further from the center indicate a higher reliance on that specific style, while a balanced diamond suggests high versatility across different social situations.</p>
                     </div>
                 </div>
-                <div class="space-y-6">
-                    <h3 class="text-xl font-black text-slate-800 mb-4">Preference Strengths</h3>
-                    <div id="scoreSummary" class="space-y-3"></div>
-                    <div class="p-6 bg-indigo-600 text-white rounded-2xl shadow-lg">
+                <div class="space-y-4">
+                    <h3 class="text-xl font-black text-slate-800 mb-2">Preference Strengths</h3>
+                    <div id="scoreSummary" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                    <div class="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg">
                         <h4 class="font-black mb-2 uppercase tracking-tight text-indigo-100">The Power of Flexing</h4>
                         <p class="text-sm leading-relaxed opacity-90">Social styles are about <strong>perception</strong>. By understanding your own "home" style, you can learn to intentionally flex your behavior to match the needs of others, building trust and reducing friction in high-stakes environments.</p>
                     </div>
-                    <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="font-black mb-3 uppercase tracking-tight text-slate-800">Extended Signal Insights</h4>
+                    <div class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-black mb-2 uppercase tracking-tight text-slate-800">Extended Signal Insights</h4>
                         <div id="advancedInsights"></div>
                     </div>
                 </div>
@@ -780,7 +780,7 @@ Keep it supportive, concrete, and under 450 words.`;
             Object.keys(styleDetails).forEach((key, i) => {
                 const s = styleDetails[key];
                 const score = scores[i];
-                const coreExtendedText = extendedModeEnabled ? `<div class="text-[10px] text-slate-400 font-semibold mt-1">Core: ${coreScores[i]} | Extended: ${extendedScores[i]}</div>` : `<div class="text-[10px] text-slate-400 font-semibold mt-1">Core: ${coreScores[i]}</div>`;
+                const coreExtendedText = extendedModeEnabled ? `Core ${coreScores[i]} · Ext ${extendedScores[i]}` : `Core ${coreScores[i]}`;
                 const maxPossibleScore = getActiveTraitsData().length * 4;
                 const highThreshold = Math.ceil(maxPossibleScore * 0.8);
                 const mediumThreshold = Math.ceil(maxPossibleScore * 0.55);
@@ -788,17 +788,19 @@ Keep it supportive, concrete, and under 450 words.`;
                 let strengthColor = score >= highThreshold ? "bg-red-500 text-white" : (score >= mediumThreshold ? "bg-amber-500 text-white" : "bg-slate-200 text-slate-700");
 
                 summary.innerHTML += `
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full" style="background-color: ${s.color}"></div>
-                            <span class="font-bold text-slate-800">${s.name}</span>
+                    <div class="p-3 rounded-xl bg-white border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${s.color}"></div>
+                                <span class="font-bold text-slate-800 truncate">${s.name}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-xl font-black text-slate-900">${score}</span>
+                                <span class="px-2 py-0.5 text-[9px] font-black rounded-full ${strengthColor}">${strength}</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-2xl font-black text-slate-900">${score}</span>
-                            <span class="px-3 py-1 text-[10px] font-black rounded-full ${strengthColor}">${strength}</span>
-                        </div>
-                    </div>
-                    ${coreExtendedText}`;
+                        <div class="mt-1 text-[10px] text-slate-400 font-semibold">${coreExtendedText}</div>
+                    </div>`;
 
                 profiles.innerHTML += `
                     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
