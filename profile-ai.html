@@ -26,12 +26,43 @@
         .ai-feedback-formatted .ai-section { margin-top: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 1rem; background: #ffffff; }
         .ai-feedback-formatted .ai-section h3 { display: flex; align-items: center; gap: 0.5rem; }
         .ai-feedback-formatted .ai-section h3::before { content: ''; display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 999px; background: #6366f1; }
+        .print-only { display: none; }
+        .report-meta { color: #64748b; font-size: 0.8rem; }
+        .report-kicker { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px; background: #eef2ff; color: #4338ca; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.08em; padding: 0.35rem 0.65rem; text-transform: uppercase; }
         
         @media print {
+            @page { size: letter; margin: 0.55in; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            body { background-color: white; padding: 0; }
+            .print-only { display: block !important; }
+            html, body { background-color: white; padding: 0; color: #0f172a; font-size: 10.5pt; line-height: 1.35; }
+            header { margin-bottom: 1rem !important; padding-bottom: 0.75rem; border-bottom: 2px solid #1e293b; text-align: left !important; }
+            header h1 { font-size: 24pt !important; margin-bottom: 0.25rem !important; color: #0f172a !important; }
+            header p { max-width: none !important; font-size: 9pt !important; color: #475569 !important; }
             .print-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
-            #resultsSection { display: block !important; margin-top: 0; }
+            #resultsSection { display: block !important; margin-top: 0 !important; }
+            #resultsSection > div { break-inside: avoid; page-break-inside: avoid; }
+            #resultsSection .grid { display: grid !important; grid-template-columns: 0.9fr 1.1fr !important; gap: 0.25in !important; }
+            #resultsSection .shadow-xl, #resultsSection .shadow-lg, #resultsSection .shadow-sm { box-shadow: none !important; }
+            #resultsSection .rounded-3xl, #resultsSection .rounded-2xl, #resultsSection .rounded-xl { border-radius: 0.12in !important; }
+            #resultsSection .p-8 { padding: 0.2in !important; }
+            #resultsSection .p-6 { padding: 0.14in !important; }
+            #kiteChart { width: 2.75in !important; height: 2.75in !important; margin: 0 auto; }
+            #scoreSummary { gap: 0.08in !important; }
+            #scoreSummary > div { padding: 0.1in !important; border: 1px solid #cbd5e1 !important; }
+            #aiFeedbackPanel { margin-top: 0.25in; padding: 0.22in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-inside: auto; page-break-inside: auto; }
+            #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.2in; margin-bottom: 0.12in !important; padding-bottom: 0.1in; border-bottom: 1px solid #cbd5e1; }
+            #aiFeedbackPanel h3 { font-size: 16pt !important; color: #111827 !important; margin: 0 !important; }
+            #aiStatus { display: none !important; }
+            #aiFeedbackOutput { min-height: 0 !important; padding: 0 !important; border: 0 !important; background: #ffffff !important; font-size: 9.5pt !important; line-height: 1.4 !important; }
+            .ai-feedback-formatted .ai-title { font-size: 12pt !important; margin-bottom: 0.08in !important; padding-bottom: 0.06in !important; }
+            .ai-feedback-formatted .ai-section { margin-top: 0.09in !important; padding: 0.1in 0.12in !important; border: 1px solid #dbeafe !important; border-left: 4px solid #4f46e5 !important; border-radius: 0.08in !important; break-inside: avoid; page-break-inside: avoid; }
+            .ai-feedback-formatted h3 { font-size: 10.5pt !important; margin: 0 0 0.05in !important; }
+            .ai-feedback-formatted p { margin: 0.04in 0 !important; color: #334155 !important; }
+            .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.04in 0 0.08in 0.18in !important; color: #334155 !important; }
+            .ai-feedback-formatted li { margin: 0.025in 0 !important; }
+            #styleProfiles { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.14in !important; padding-bottom: 0 !important; margin-top: 0.22in; }
+            #styleProfiles > div { padding: 0.16in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; }
         }
 
         /* Custom scrollbar for table */
@@ -160,16 +191,17 @@
             </div>
 
 
-            <div id="aiFeedbackPanel" class="bg-white p-8 rounded-3xl shadow-xl border border-indigo-100 no-print">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div id="aiFeedbackPanel" class="bg-white p-8 rounded-3xl shadow-xl border border-indigo-100">
+                <div class="ai-print-heading flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
                     <div>
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-widest mb-3">Chrome Prompt API</div>
+                        <div class="report-kicker">AI Coaching Feedback</div>
                         <h3 class="text-2xl font-black text-slate-800">AI Coaching Feedback</h3>
-                        <p class="text-sm text-slate-500 mt-2 max-w-2xl">Generate private, on-device analysis with Gemini Nano in supported Chrome desktop browsers. No API key or server call is used by this page.</p>
+                        <p class="text-sm text-slate-500 mt-2 max-w-2xl no-print">Generate private, on-device analysis with Gemini Nano in supported Chrome desktop browsers. No API key or server call is used by this page.</p>
+                        <p id="aiPrintMeta" class="report-meta print-only mt-2">AI feedback status will appear here for the printed report.</p>
                     </div>
-                    <button id="generateAiFeedbackBtn" class="bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Feedback</button>
+                    <button id="generateAiFeedbackBtn" class="no-print bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Feedback</button>
                 </div>
-                <div id="aiStatus" class="mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Checking Chrome Prompt API availability...</div>
+                <div id="aiStatus" class="no-print mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Checking Chrome Prompt API availability...</div>
                 <div id="aiFeedbackOutput" class="ai-feedback-formatted max-w-none text-sm leading-relaxed bg-slate-50 border border-slate-100 rounded-2xl p-5 min-h-[120px]">Complete the assessment, then generate AI coaching feedback for your profile.</div>
             </div>
 
@@ -457,6 +489,7 @@
         }
 
         let latestAnalysisContext = null;
+        let aiFeedbackGeneratedAt = null;
         let promptApiStatus = { available: false, canAttempt: false, message: 'Not checked yet.', fallbackPrompt: false };
 
         async function copyTextToClipboard(text) {
@@ -478,6 +511,15 @@
             return null;
         }
 
+        function updateAiPrintMeta(statusMessage = '') {
+            const meta = document.getElementById('aiPrintMeta');
+            if (!meta) return;
+            const name = latestAnalysisContext?.participantName || 'Unnamed participant';
+            const mode = latestAnalysisContext?.extendedModeEnabled ? '10-row Extended Deep-Dive' : '5-row Core';
+            const generated = aiFeedbackGeneratedAt ? `AI feedback generated ${aiFeedbackGeneratedAt}.` : 'AI feedback not yet generated; section may contain the AI-ready prompt or browser status note.';
+            meta.textContent = `${name} • ${mode} • ${generated}${statusMessage ? ` Status: ${statusMessage}` : ''}`;
+        }
+
         function setAiStatus(message, statusType = 'waiting') {
             const statusEl = document.getElementById('aiStatus');
             const statusClasses = {
@@ -486,7 +528,8 @@
                 error: 'bg-rose-50 border-rose-100 text-rose-800'
             };
             statusEl.textContent = message;
-            statusEl.className = `mb-4 p-4 rounded-2xl border text-sm ${statusClasses[statusType] || statusClasses.waiting}`;
+            statusEl.className = `no-print mb-4 p-4 rounded-2xl border text-sm ${statusClasses[statusType] || statusClasses.waiting}`;
+            updateAiPrintMeta(message);
         }
 
         function updateAiButtonState() {
@@ -573,6 +616,8 @@ Keep it supportive, concrete, and under 450 words.`;
         }
 
         function renderAiFeedback(markdownText) {
+            aiFeedbackGeneratedAt = new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+            updateAiPrintMeta('Generated coaching feedback included.');
             const output = document.getElementById('aiFeedbackOutput');
             output.classList.remove('plain');
             const lines = markdownText.replace(/\\n/g, '\n').split(/\r?\n/);
@@ -648,6 +693,8 @@ Keep it supportive, concrete, and under 450 words.`;
         }
 
         function setPlainAiOutput(message) {
+            aiFeedbackGeneratedAt = null;
+            updateAiPrintMeta();
             const output = document.getElementById('aiFeedbackOutput');
             output.classList.add('plain');
             output.textContent = message;
@@ -772,6 +819,8 @@ Keep it supportive, concrete, and under 450 words.`;
                 shiftingStyle: extendedModeEnabled ? styleDetails[styleKeys[shiftingStyleIdx]].name : 'Extended mode not enabled',
                 adaptabilityRange: normalizedGap
             };
+            aiFeedbackGeneratedAt = null;
+            setPlainAiOutput('AI coaching feedback has not been generated yet. Use Generate AI Feedback before printing to include the personalized coaching narrative in this business report. If Chrome Prompt API is unavailable, this section will show the AI-ready prompt for external review.');
             updateAdvancedInsights(coreScores, extendedScores);
             refreshPromptApiStatus();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -867,6 +916,7 @@ Keep it supportive, concrete, and under 450 words.`;
 
         document.getElementById('toggleExtendedBtn').onclick = () => setExtendedMode(!extendedModeEnabled);
         document.getElementById('generateAiFeedbackBtn').onclick = generateAiFeedback;
+        window.addEventListener('beforeprint', () => updateAiPrintMeta(promptApiStatus.message));
 
         document.getElementById('resetBtn').onclick = () => { if(confirm("Reset all scores?")) { extendedModeEnabled = false; document.getElementById('extendedNotice').classList.add('hidden'); document.getElementById('toggleExtendedBtn').textContent = 'Enable Extended Deep-Dive'; initResponseBuckets(false); renderQuestionGrid(); updateGridUI(); document.getElementById('assessmentContainer').classList.remove('hidden'); document.getElementById('resultsSection').classList.add('hidden'); } };
 
