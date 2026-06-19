@@ -31,39 +31,53 @@
         .report-kicker { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px; background: #eef2ff; color: #4338ca; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.08em; padding: 0.35rem 0.65rem; text-transform: uppercase; }
         
         @media print {
-            @page { size: letter; margin: 0.55in; }
+            @page { size: letter; margin: 0.42in; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            html, body { background-color: white; padding: 0; color: #0f172a; font-size: 10.5pt; line-height: 1.35; }
-            header { margin-bottom: 0.35rem !important; padding-bottom: 0.28rem; border-bottom: 2px solid #1e293b; text-align: left !important; }
-            header h1 { font-size: 20pt !important; margin-bottom: 0.08rem !important; color: #0f172a !important; }
-            header p { max-width: none !important; font-size: 8.5pt !important; color: #475569 !important; }
+            html, body { background-color: white; padding: 0; color: #0f172a; font-size: 9pt; line-height: 1.25; }
+            header { margin-bottom: 0.18in !important; padding-bottom: 0.08in; border-bottom: 2px solid #1e293b; text-align: left !important; break-after: avoid; page-break-after: avoid; }
+            header h1 { font-size: 17pt !important; margin-bottom: 0.03in !important; color: #0f172a !important; }
+            header p { max-width: none !important; font-size: 8pt !important; color: #475569 !important; }
             .print-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
             #resultsSection { display: block !important; margin-top: 0 !important; }
             #resultsSection > div { margin-top: 0 !important; }
-            #resultsSection > div + div { margin-top: 0.16in !important; }
-            #resultsSection .grid { display: grid !important; grid-template-columns: 0.9fr 1.1fr !important; gap: 0.16in !important; break-inside: auto; page-break-inside: auto; }
+            #resultsSection > div + div { margin-top: 0 !important; }
+            #resultsSection > .grid:first-of-type { display: grid !important; grid-template-columns: 0.82fr 1.18fr !important; gap: 0.12in !important; padding: 0.12in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
             #resultsSection .shadow-xl, #resultsSection .shadow-lg, #resultsSection .shadow-sm { box-shadow: none !important; }
-            #resultsSection .rounded-3xl, #resultsSection .rounded-2xl, #resultsSection .rounded-xl { border-radius: 0.12in !important; }
-            #resultsSection .p-8 { padding: 0.15in !important; }
-            #resultsSection .p-6 { padding: 0.1in !important; }
-            #kiteChart { width: 2.35in !important; height: 2.35in !important; margin: 0 auto; }
-            #scoreSummary { gap: 0.08in !important; }
-            #scoreSummary > div { padding: 0.1in !important; border: 1px solid #cbd5e1 !important; }
-            #aiFeedbackPanel { margin-top: 0.16in !important; padding: 0.16in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-inside: auto; page-break-inside: auto; }
-            #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.2in; margin-bottom: 0.12in !important; padding-bottom: 0.1in; border-bottom: 1px solid #cbd5e1; }
-            #aiFeedbackPanel h3 { font-size: 16pt !important; color: #111827 !important; margin: 0 !important; }
+            #resultsSection .rounded-3xl, #resultsSection .rounded-2xl, #resultsSection .rounded-xl { border-radius: 0.08in !important; }
+            #resultsSection .p-8 { padding: 0.12in !important; }
+            #resultsSection .p-6 { padding: 0.08in !important; }
+            #resultsSection h2 { font-size: 15pt !important; margin-bottom: 0.08in !important; }
+            #resultsSection h3 { font-size: 12pt !important; margin-bottom: 0.06in !important; }
+            #kiteChart { width: 2.05in !important; height: 2.05in !important; margin: 0 auto; }
+            #kiteChart + div { margin-top: 0.08in !important; padding: 0.08in !important; font-size: 7.6pt !important; line-height: 1.2 !important; }
+            #scoreSummary { gap: 0.04in !important; }
+            #scoreSummary > div { padding: 0.065in !important; border: 1px solid #cbd5e1 !important; }
+            #scoreSummary + div { padding: 0.08in !important; font-size: 7.8pt !important; line-height: 1.2 !important; }
+            #advancedInsights > div { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 0.06in !important; }
+            #advancedInsights > div > div { padding: 0.07in !important; }
+            #advancedInsights p { font-size: 7.2pt !important; line-height: 1.15 !important; }
+            #aiFeedbackPanel { padding: 0.14in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-before: page; page-break-before: always; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
+            #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.16in; margin-bottom: 0.08in !important; padding-bottom: 0.07in; border-bottom: 1px solid #cbd5e1; }
+            #aiFeedbackPanel h3 { font-size: 15pt !important; color: #111827 !important; margin: 0 !important; }
             #aiStatus { display: none !important; }
-            #aiFeedbackOutput { min-height: 0 !important; padding: 0 !important; border: 0 !important; background: #ffffff !important; font-size: 9.5pt !important; line-height: 1.4 !important; }
-            .ai-feedback-formatted .ai-title { font-size: 12pt !important; margin-bottom: 0.08in !important; padding-bottom: 0.06in !important; }
-            .ai-feedback-formatted .ai-section { margin-top: 0.09in !important; padding: 0.1in 0.12in !important; border: 1px solid #dbeafe !important; border-left: 4px solid #4f46e5 !important; border-radius: 0.08in !important; break-inside: avoid; page-break-inside: avoid; }
-            .ai-feedback-formatted h3 { font-size: 10.5pt !important; margin: 0 0 0.05in !important; }
-            .ai-feedback-formatted p { margin: 0.04in 0 !important; color: #334155 !important; }
-            .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.04in 0 0.08in 0.18in !important; color: #334155 !important; }
-            .ai-feedback-formatted li { margin: 0.025in 0 !important; }
-            #styleProfiles { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.14in !important; padding-bottom: 0 !important; margin-top: 0.22in; }
-            #styleProfiles > div { padding: 0.16in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; }
+            #aiFeedbackOutput { min-height: 0 !important; padding: 0 !important; border: 0 !important; background: #ffffff !important; font-size: 8.35pt !important; line-height: 1.24 !important; }
+            .ai-feedback-formatted .ai-title { font-size: 10.5pt !important; margin-bottom: 0.05in !important; padding-bottom: 0.04in !important; }
+            .ai-feedback-formatted .ai-section { margin-top: 0.055in !important; padding: 0.06in 0.08in !important; border: 1px solid #dbeafe !important; border-left: 3px solid #4f46e5 !important; border-radius: 0.06in !important; break-inside: avoid; page-break-inside: avoid; }
+            .ai-feedback-formatted h3 { font-size: 9.2pt !important; margin: 0 0 0.025in !important; }
+            .ai-feedback-formatted p { margin: 0.025in 0 !important; color: #334155 !important; }
+            .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.025in 0 0.045in 0.15in !important; color: #334155 !important; }
+            .ai-feedback-formatted li { margin: 0.012in 0 !important; }
+            #styleProfiles { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.09in !important; padding-bottom: 0 !important; margin-top: 0 !important; break-before: page; page-break-before: always; }
+            #styleProfiles > div { padding: 0.09in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; }
+            #styleProfiles h4 { font-size: 14pt !important; }
+            #styleProfiles .mb-6 { margin-bottom: 0.07in !important; }
+            #styleProfiles .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.07in !important; }
+            #styleProfiles p, #styleProfiles li { font-size: 7.4pt !important; line-height: 1.18 !important; }
+            #styleProfiles .p-4 { padding: 0.06in !important; }
+            #styleProfiles .pt-4 { padding-top: 0.06in !important; }
+            #styleProfiles ul { margin: 0 !important; }
         }
 
         /* Custom scrollbar for table */
