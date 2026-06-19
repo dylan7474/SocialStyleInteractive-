@@ -57,7 +57,7 @@ http://localhost:8000/team.html
 - **Export:** Saves your current assessment responses to a local JSON file. In `profile.html` and `profile-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
-- **Print:** Use the browser print dialog to generate a printable version of results.
+- **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html`, the print report is formatted as a business-ready report and includes the AI Coaching Feedback section when feedback has been generated before printing.
 
 ### Profile Deep-Dive controls (`profile.html` and `profile-ai.html`)
 
@@ -68,7 +68,7 @@ http://localhost:8000/team.html
 
 ### AI profile controls (`profile-ai.html`)
 
-- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is rendered into styled report sections so headings, bullets, numbered actions, and emphasis match the rest of the results page.
+- **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is rendered into styled report sections so headings, bullets, numbered actions, and emphasis match the rest of the results page and printed business report.
 - **Copy AI Prompt fallback:** If the Prompt API is unavailable, cannot be checked, or on-device generation fails, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool. The fallback prompt is shown as plain text to make copying easy.
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
@@ -98,7 +98,7 @@ Then verify:
 - Results render correctly and print styles hide controls.
 - (`team.html`) Multi-file upload works and team/synergy tabs populate correctly.
 - (`profile.html`, `profile-ai.html`, and `team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
-- (`profile-ai.html`) Chrome Prompt API availability status appears after analysis and AI feedback can be generated in a supported Chrome desktop browser.
+- (`profile-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
 
 ## Roadmap
 
