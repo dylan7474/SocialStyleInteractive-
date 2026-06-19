@@ -36,21 +36,22 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             html, body { background-color: white; padding: 0; color: #0f172a; font-size: 10.5pt; line-height: 1.35; }
-            header { margin-bottom: 1rem !important; padding-bottom: 0.75rem; border-bottom: 2px solid #1e293b; text-align: left !important; }
-            header h1 { font-size: 24pt !important; margin-bottom: 0.25rem !important; color: #0f172a !important; }
-            header p { max-width: none !important; font-size: 9pt !important; color: #475569 !important; }
+            header { margin-bottom: 0.35rem !important; padding-bottom: 0.28rem; border-bottom: 2px solid #1e293b; text-align: left !important; }
+            header h1 { font-size: 20pt !important; margin-bottom: 0.08rem !important; color: #0f172a !important; }
+            header p { max-width: none !important; font-size: 8.5pt !important; color: #475569 !important; }
             .print-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
             #resultsSection { display: block !important; margin-top: 0 !important; }
-            #resultsSection > div { break-inside: avoid; page-break-inside: avoid; }
-            #resultsSection .grid { display: grid !important; grid-template-columns: 0.9fr 1.1fr !important; gap: 0.25in !important; }
+            #resultsSection > div { margin-top: 0 !important; }
+            #resultsSection > div + div { margin-top: 0.16in !important; }
+            #resultsSection .grid { display: grid !important; grid-template-columns: 0.9fr 1.1fr !important; gap: 0.16in !important; break-inside: auto; page-break-inside: auto; }
             #resultsSection .shadow-xl, #resultsSection .shadow-lg, #resultsSection .shadow-sm { box-shadow: none !important; }
             #resultsSection .rounded-3xl, #resultsSection .rounded-2xl, #resultsSection .rounded-xl { border-radius: 0.12in !important; }
-            #resultsSection .p-8 { padding: 0.2in !important; }
-            #resultsSection .p-6 { padding: 0.14in !important; }
-            #kiteChart { width: 2.75in !important; height: 2.75in !important; margin: 0 auto; }
+            #resultsSection .p-8 { padding: 0.15in !important; }
+            #resultsSection .p-6 { padding: 0.1in !important; }
+            #kiteChart { width: 2.35in !important; height: 2.35in !important; margin: 0 auto; }
             #scoreSummary { gap: 0.08in !important; }
             #scoreSummary > div { padding: 0.1in !important; border: 1px solid #cbd5e1 !important; }
-            #aiFeedbackPanel { margin-top: 0.25in; padding: 0.22in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-inside: auto; page-break-inside: auto; }
+            #aiFeedbackPanel { margin-top: 0.16in !important; padding: 0.16in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-inside: auto; page-break-inside: auto; }
             #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.2in; margin-bottom: 0.12in !important; padding-bottom: 0.1in; border-bottom: 1px solid #cbd5e1; }
             #aiFeedbackPanel h3 { font-size: 16pt !important; color: #111827 !important; margin: 0 !important; }
             #aiStatus { display: none !important; }

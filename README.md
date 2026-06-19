@@ -57,7 +57,7 @@ http://localhost:8000/team.html
 - **Export:** Saves your current assessment responses to a local JSON file. In `profile.html` and `profile-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
-- **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html`, the print report is formatted as a business-ready report and includes the AI Coaching Feedback section when feedback has been generated before printing.
+- **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html`, the print report is formatted as a compact business-ready report that keeps the profile overview near the report header and includes the AI Coaching Feedback section when feedback has been generated before printing.
 
 ### Profile Deep-Dive controls (`profile.html` and `profile-ai.html`)
 
