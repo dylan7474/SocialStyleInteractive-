@@ -13,11 +13,35 @@
         .rank-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .rank-btn.active { transform: scale(1.1); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         .tab-active { border-bottom: 3px solid #4f46e5; color: #4f46e5; font-weight: 700; }
-        
+
+        .executive-report { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+        .executive-hero { background: linear-gradient(135deg, #0f172a 0%, #312e81 55%, #4f46e5 100%); }
+        .executive-card { break-inside: avoid; page-break-inside: avoid; }
+        .report-prose h1, .report-prose h2, .report-prose h3 { color: #0f172a; font-weight: 900; margin-top: 1.25rem; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .report-prose h1 { font-size: 1.5rem; }
+        .report-prose h2 { font-size: 1.15rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.35rem; }
+        .report-prose h3 { font-size: 1rem; }
+        .report-prose p { margin: 0.55rem 0; color: #334155; }
+        .report-prose ul, .report-prose ol { margin: 0.5rem 0 0.85rem 1.25rem; color: #334155; }
+        .report-prose li { margin: 0.35rem 0; }
+        .report-prose strong { color: #0f172a; font-weight: 800; }
+        .report-prose.fallback-prompt { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 0.78rem; }
+        .report-page-break { break-before: page; page-break-before: always; }
+
         @media print {
-            .no-print { display: none !important; }
-            body { background-color: white; padding: 0; }
+            @page { size: letter; margin: 0.55in; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print, header.no-print, nav { display: none !important; }
+            body { background-color: white; padding: 0; color: #0f172a; }
             .print-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
+            .tab-content.hidden { display: none !important; }
+            #tab-ai { display: block !important; }
+            .executive-report { box-shadow: none !important; border: none !important; padding: 0 !important; background: white !important; }
+            .executive-hero { border-radius: 0.25in !important; padding: 0.35in !important; margin-bottom: 0.25in !important; }
+            .executive-card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; }
+            .report-prose { font-size: 10.5pt; line-height: 1.45; }
+            .report-prose h1, .report-prose h2, .report-prose h3 { break-after: avoid; page-break-after: avoid; }
+            canvas { max-width: 100% !important; height: auto !important; }
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -27,14 +51,14 @@
 </head>
 <body class="p-2 md:p-6">
     <div class="max-w-6xl mx-auto print-container">
-        
+
         <!-- Header & Nav -->
         <header class="mb-6 flex flex-col md:flex-row justify-between items-center no-print">
             <div class="mb-4 md:mb-0">
                 <h1 class="text-3xl font-black text-slate-800 tracking-tight">AI SOCIAL STYLE <span class="text-indigo-600">PRO</span></h1>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">AI-Enabled Team Dynamics Lab</p>
             </div>
-            
+
             <nav class="flex flex-wrap gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200">
                 <button onclick="switchTab('assess')" id="btn-assess" class="px-3 py-2 text-xs md:text-sm font-medium rounded-lg hover:bg-slate-50 transition-all tab-active">Assessment</button>
                 <button onclick="switchTab('team')" id="btn-team" class="px-3 py-2 text-xs md:text-sm font-medium rounded-lg hover:bg-slate-50 transition-all">Team Dashboard</button>
@@ -124,7 +148,7 @@
                             <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400"><div class="w-3 h-0.5 bg-indigo-900"></div> Group Avg</div>
                         </div>
                     </div>
-                    
+
                     <div class="space-y-6">
                         <div>
                             <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-3">Dominant Style Mix</h3>
@@ -132,7 +156,7 @@
                                 <p class="text-slate-400 italic text-sm">Waiting for data...</p>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-3">Member List</h3>
                             <div id="teamMemberList" class="space-y-1 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
@@ -210,17 +234,46 @@
 
         <!-- AI COMMENTARY TAB -->
         <div id="tab-ai" class="tab-content hidden space-y-6">
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-                <div class="mb-6">
-                    <h2 class="text-3xl font-black text-slate-800 mb-2">AI Team Commentary Report</h2>
-                    <p class="text-slate-500">Use this report after uploading team profiles in the Team Dashboard. The analysis stays in-browser when Chrome's Prompt API/Gemini Nano is available.</p>
-                </div>
+            <div class="executive-report bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <section class="executive-hero text-white rounded-[2rem] p-8 mb-6 executive-card">
+                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                        <div>
+                            <p class="text-indigo-100 text-xs font-black uppercase tracking-[0.3em] mb-3">Executive Team Intelligence</p>
+                            <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-3">AI Team Commentary Report</h2>
+                            <p class="text-indigo-100 max-w-3xl">A facilitator-ready leadership brief that translates Social Style results into team composition, operating risks, and meeting actions. On supported Chrome builds, commentary is generated privately in-browser.</p>
+                        </div>
+                        <div class="text-left lg:text-right text-indigo-100 text-xs font-bold uppercase tracking-widest">
+                            <div id="executiveReportDate">Prepared in browser</div>
+                            <div id="executiveReportSize" class="mt-1">No team data loaded</div>
+                        </div>
+                    </div>
+                </section>
+
                 <div class="flex flex-wrap gap-2 mb-4 no-print">
                     <button id="generateTeamAiBtnTab" class="bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Commentary</button>
-                    <button onclick="window.print()" class="bg-white text-slate-700 border border-slate-200 px-5 py-3 rounded-xl font-black hover:bg-slate-50 transition-all shadow-sm">Print Report</button>
+                    <button onclick="window.print()" class="bg-white text-slate-700 border border-slate-200 px-5 py-3 rounded-xl font-black hover:bg-slate-50 transition-all shadow-sm">Print Executive Report</button>
                 </div>
-                <div id="teamAiStatusTab" class="mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Upload team profiles to enable AI commentary.</div>
-                <div id="teamAiOutputTab" class="text-sm leading-relaxed bg-slate-50 border border-slate-100 rounded-2xl p-6 min-h-[240px] whitespace-pre-wrap">AI-generated team commentary will appear here.</div>
+                <div id="teamAiStatusTab" class="mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600 no-print">Upload team profiles to enable AI commentary.</div>
+
+                <section id="executiveSummaryGrid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"></section>
+
+                <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="lg:col-span-2 executive-card bg-slate-50 border border-slate-200 rounded-3xl p-6">
+                        <h3 class="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Executive Interpretation</h3>
+                        <div id="teamAiOutputTab" class="report-prose text-sm leading-relaxed min-h-[240px]">AI-generated team commentary will appear here.</div>
+                    </div>
+                    <aside class="executive-card bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                        <h3 class="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Facilitator Use</h3>
+                        <ul class="text-sm text-slate-600 space-y-3">
+                            <li><strong class="text-slate-900">Before the session:</strong> review style balance and likely pressure points.</li>
+                            <li><strong class="text-slate-900">During discussion:</strong> use recommendations as prompts, not labels.</li>
+                            <li><strong class="text-slate-900">Afterward:</strong> convert agreements into meeting norms and decision rules.</li>
+                        </ul>
+                        <div class="mt-6 p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-xs text-indigo-800 leading-relaxed">
+                            This report is designed for workplace facilitation and should not be used as a diagnostic or performance rating instrument.
+                        </div>
+                    </aside>
+                </section>
             </div>
         </div>
 
@@ -346,11 +399,87 @@
             updateTeamAiButtonState();
         }
 
-        function setTeamAiOutput(message) {
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+        }
+
+        function renderMarkdownReport(markdown) {
+            const lines = String(markdown || '').split(/\r?\n/);
+            let html = '';
+            let listType = null;
+            const closeList = () => {
+                if (listType) html += `</${listType}>`;
+                listType = null;
+            };
+            const inline = (text) => escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            lines.forEach(rawLine => {
+                const line = rawLine.trim();
+                if (!line) { closeList(); return; }
+                const heading = line.match(/^(#{1,3})\s+(.+)$/);
+                if (heading) {
+                    closeList();
+                    const level = heading[1].length;
+                    html += `<h${level}>${inline(heading[2])}</h${level}>`;
+                    return;
+                }
+                const ordered = line.match(/^\d+[.)]\s+(.+)$/);
+                const unordered = line.match(/^[-•*]\s+(.+)$/);
+                if (ordered || unordered) {
+                    const desired = ordered ? 'ol' : 'ul';
+                    if (listType !== desired) { closeList(); html += `<${desired}>`; listType = desired; }
+                    html += `<li>${inline((ordered || unordered)[1])}</li>`;
+                    return;
+                }
+                closeList();
+                html += `<p>${inline(line)}</p>`;
+            });
+            closeList();
+            return html || '<p>AI-generated team commentary will appear here.</p>';
+        }
+
+        function setTeamAiOutput(message, asMarkdown = false) {
             ['teamAiOutput', 'teamAiOutputTab'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.textContent = message;
+                if (!el) return;
+                el.classList.toggle('fallback-prompt', !asMarkdown && id === 'teamAiOutputTab');
+                if (asMarkdown && id === 'teamAiOutputTab') el.innerHTML = renderMarkdownReport(message);
+                else el.textContent = message;
             });
+        }
+
+        function renderExecutiveSummary() {
+            const grid = document.getElementById('executiveSummaryGrid');
+            const dateEl = document.getElementById('executiveReportDate');
+            const sizeEl = document.getElementById('executiveReportSize');
+            if (dateEl) dateEl.textContent = `Prepared ${new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`;
+            if (!grid) return;
+            if (teamData.length === 0) {
+                if (sizeEl) sizeEl.textContent = 'No team data loaded';
+                grid.innerHTML = `<div class="md:col-span-4 executive-card p-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 text-center text-slate-500 font-bold">Upload team profiles in the Team Dashboard to populate the executive summary.</div>`;
+                return;
+            }
+            const counts = [0, 0, 0, 0], averages = [0, 0, 0, 0];
+            teamData.forEach(member => {
+                counts[getDominantStyle(member).index]++;
+                member.scores.forEach((score, idx) => averages[idx] += score);
+            });
+            const styles = Object.values(styleDetails);
+            const topIdx = averages.indexOf(Math.max(...averages));
+            const lowIdx = averages.indexOf(Math.min(...averages));
+            const diversity = counts.filter(Boolean).length;
+            if (sizeEl) sizeEl.textContent = `${teamData.length} member${teamData.length === 1 ? '' : 's'} analysed`;
+            const cards = [
+                ['Team Size', teamData.length, 'Profiles included in this report', '#4f46e5'],
+                ['Dominant Lean', styles[topIdx].name, `${counts[topIdx]} member${counts[topIdx] === 1 ? '' : 's'} lead with this style`, styles[topIdx].color],
+                ['Underused Signal', styles[lowIdx].name, 'Watch for blind spots tied to this lower average', styles[lowIdx].color],
+                ['Style Coverage', `${diversity}/4`, 'Dominant styles represented across the team', '#0f172a']
+            ];
+            grid.innerHTML = cards.map(([label, value, note, color]) => `
+                <div class="executive-card bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">${label}</div>
+                    <div class="text-2xl font-black mt-2" style="color: ${color}">${value}</div>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">${note}</p>
+                </div>`).join('');
         }
 
         function updateTeamAiButtonState() {
@@ -396,7 +525,24 @@
                 const dominant = getDominantStyle(member);
                 return `- ${member.name}: ${dominant.name}; scores Driver=${member.scores[0]}, Expressive=${member.scores[1]}, Amiable=${member.scores[2]}, Analytical=${member.scores[3]}; max score ${member.maxScore || 20}`;
             }).join('\n');
-            return `You are a practical team facilitator. Analyze Social Style assessment data without diagnosing personality or making medical claims. Create a concise, supportive team report.\n\nTeam size: ${teamData.length}\nDominant style counts: Driver=${counts[0]}, Expressive=${counts[1]}, Amiable=${counts[2]}, Analytical=${counts[3]}\nTeam averages: ${avgText}\nMembers:\n${memberText}\n\nReturn Markdown with these headings:\n1. Team dynamics snapshot\n2. Individual member profile notes\n3. Collaboration strengths\n4. Likely friction patterns and blind spots\n5. Facilitation recommendations for the next team meeting\n6. Two practical team agreements\nKeep it specific to the data, concrete, non-judgmental, and under 700 words.`;
+            return `You are an executive team facilitator. Analyze Social Style assessment data without diagnosing personality or making medical claims. Create a polished, boardroom-ready leadership brief that is concise, specific, and action-oriented.
+
+Team size: ${teamData.length}
+Dominant style counts: Driver=${counts[0]}, Expressive=${counts[1]}, Amiable=${counts[2]}, Analytical=${counts[3]}
+Team averages: ${avgText}
+Members:
+${memberText}
+
+Return Markdown with these headings exactly:
+# Executive Summary
+## Team Dynamics Snapshot
+## Individual Leadership Notes
+## Collaboration Advantages
+## Operational Risks and Blind Spots
+## Next Meeting Facilitation Plan
+## Recommended Team Agreements
+
+Use a professional executive tone, emphasize observable workplace behaviors, include clear actions for leaders, avoid jargon, remain non-judgmental, and keep the report under 800 words.`;
         }
 
         async function generateTeamAiCommentary() {
@@ -428,7 +574,7 @@
                 session = typeof api.create === 'function' ? await api.create(options) : await api.createTextSession(options);
                 setTeamAiStatus('Prompt API ready. Generating private on-device team commentary...', 'ready');
                 const response = await session.prompt(prompt);
-                setTeamAiOutput(response.trim());
+                setTeamAiOutput(response.trim(), true);
             } catch (error) {
                 await refreshTeamAiStatus();
                 const copied = await copyTextToClipboard(prompt);
@@ -443,7 +589,7 @@
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).classList.add('tab-active');
-            
+
             if(tabId === 'lab') updateFlexPlan();
             if(tabId === 'synergy') renderSynergyTab();
         };
@@ -647,6 +793,7 @@
             }
             if (teamData.length > 0) {
                 renderTeamDashboard();
+                renderExecutiveSummary();
                 refreshTeamAiStatus();
             }
             e.target.value = ''; // Reset input to allow re-uploading the same file
@@ -677,7 +824,7 @@
         function renderSynergyTab() {
             const emptyState = document.getElementById('synergyEmptyState');
             const controls = document.getElementById('synergyControls');
-            
+
             if (teamData.length < 2) {
                 emptyState.classList.remove('hidden');
                 controls.classList.add('hidden');
@@ -689,7 +836,7 @@
 
             const selectA = document.getElementById('memberASelect');
             const selectB = document.getElementById('memberBSelect');
-            
+
             const currentOptions = teamData.map((m, i) => `<option value="${i}">${m.name}</option>`).join('');
             if (selectA.innerHTML !== currentOptions) {
                 selectA.innerHTML = currentOptions;
@@ -756,7 +903,7 @@
                     const styleA = teamData[i].scores.indexOf(Math.max(...teamData[i].scores));
                     const styleB = teamData[j].scores.indexOf(Math.max(...teamData[j].scores));
                     const isOpposite = (styleA === 0 && styleB === 2) || (styleA === 2 && styleB === 0) || (styleA === 1 && styleB === 3) || (styleA === 3 && styleB === 1);
-                    
+
                     if (isOpposite) opposites.push({ a: teamData[i].name, b: teamData[j].name, type: (styleA === 0 || styleA === 2) ? "Action vs People" : "Vision vs Detail", idxA: i, idxB: j });
                 }
             }
@@ -787,6 +934,7 @@
 
         document.getElementById('generateTeamAiBtn').onclick = generateTeamAiCommentary;
         document.getElementById('generateTeamAiBtnTab').onclick = generateTeamAiCommentary;
+        renderExecutiveSummary();
         refreshTeamAiStatus();
 
         document.getElementById('memberASelect').onchange = updateSynergyAnalysis;
@@ -834,19 +982,19 @@
             } catch (err) { alert("Invalid assessment file."); }
             e.target.value = '';
         };
-        
-        document.getElementById('resetBtn').onclick = () => { 
-            if(confirm("Reset assessment? This will clear all ranks and hide current results.")) { 
+
+        document.getElementById('resetBtn').onclick = () => {
+            if(confirm("Reset assessment? This will clear all ranks and hide current results.")) {
                 extendedModeEnabled = false;
                 document.getElementById('extendedNotice').classList.add('hidden');
                 document.getElementById('toggleExtendedBtn').textContent = 'Enable Extended Deep-Dive';
                 initResponseBuckets(false);
                 renderQuestionGrid();
-                updateGridUI(); 
+                updateGridUI();
                 document.getElementById('assessmentContainer').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            } 
+            }
         };
 
     </script>

@@ -21,7 +21,7 @@ This repository includes five static HTML entry points:
   - team dashboard (multi-file upload and aggregate view),
   - interaction lab,
   - peer-to-peer synergy analysis.
-- **`team-ai.html`**: AI-enabled team experience that keeps the `team.html` workflow and adds an AI Commentary tab/panel for generated member profile notes and team dynamics commentary using Chrome's built-in Prompt API / Gemini Nano when available, with a copyable AI prompt fallback for unsupported browsers.
+- **`team-ai.html`**: AI-enabled team experience that keeps the `team.html` workflow and adds an executive-style AI Commentary report for generated member leadership notes and team dynamics commentary using Chrome's built-in Prompt API / Gemini Nano when available, with a copyable AI prompt fallback for unsupported browsers.
 
 Use whichever file best matches your facilitation context.
 
@@ -89,7 +89,7 @@ http://localhost:8000/team-ai.html
 - **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary.
 - **Copy AI Prompt fallback:** If Chrome Prompt API/Gemini Nano is unavailable, the same control displays an AI-ready prompt that can be copied into another AI tool.
 - **Privacy note:** Supported Chrome builds run the commentary in-browser with the built-in on-device model; this repository does not send team data to an app server or require an API key.
-- **Print Report:** The AI Commentary tab includes a print control for facilitator-ready report output.
+- **Print Executive Report:** The AI Commentary tab uses a boardroom-ready report layout with an executive cover band, summary metric cards, facilitator guidance, styled Markdown output, and print-specific formatting that hides controls and avoids awkward section splits.
 
 ## Validation checklist (manual)
 
@@ -108,7 +108,7 @@ Then verify:
 - (`team.html` and `team-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
 - (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
 - (`profile-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
-- (`team-ai.html`) AI Commentary status appears after team upload, generated member profiles/team dynamics commentary works in a supported Chrome desktop browser, and unsupported browsers show the copyable fallback prompt.
+- (`team-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
 
 ## Roadmap
 
