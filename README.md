@@ -11,7 +11,7 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository includes four static HTML entry points:
+This repository includes five static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
@@ -21,6 +21,7 @@ This repository includes four static HTML entry points:
   - team dashboard (multi-file upload and aggregate view),
   - interaction lab,
   - peer-to-peer synergy analysis.
+- **`team-ai.html`**: AI-enabled team experience that keeps the `team.html` workflow and adds an AI Commentary tab/panel for generated member profile notes and team dynamics commentary using Chrome's built-in Prompt API / Gemini Nano when available, with a copyable AI prompt fallback for unsupported browsers.
 
 Use whichever file best matches your facilitation context.
 
@@ -30,7 +31,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open `index.html`, `profile.html`, `profile-ai.html`, or `team.html` in a modern browser.
+2. Open `index.html`, `profile.html`, `profile-ai.html`, `team.html`, or `team-ai.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -46,6 +47,7 @@ http://localhost:8000/index.html
 http://localhost:8000/profile.html
 http://localhost:8000/profile-ai.html
 http://localhost:8000/team.html
+http://localhost:8000/team-ai.html
 ```
 
 ## Basic controls
@@ -73,14 +75,21 @@ http://localhost:8000/team.html
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
 
-### Team-specific controls (`team.html`)
+### Team-specific controls (`team.html` and `team-ai.html`)
 
 - **Upload Team Profiles:** Import multiple participant JSON files at once.
 - **Team Dashboard:** Review member distribution and aggregate style balance.
 - **Interaction Lab:** Review recommendations based on team composition.
 - **Team Synergy:** Compare any two members and inspect likely collaboration/tension patterns.
-- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` to compare baseline style signals vs contextual style shifts.
+- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` or `team-ai.html` to compare baseline style signals vs contextual style shifts.
 - **Reset Form (team assessment):** Clears all ranked rows, returns to baseline 5-row mode, and hides current analysis results.
+
+### AI team commentary controls (`team-ai.html`)
+
+- **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary.
+- **Copy AI Prompt fallback:** If Chrome Prompt API/Gemini Nano is unavailable, the same control displays an AI-ready prompt that can be copied into another AI tool.
+- **Privacy note:** Supported Chrome builds run the commentary in-browser with the built-in on-device model; this repository does not send team data to an app server or require an API key.
+- **Print Report:** The AI Commentary tab includes a print control for facilitator-ready report output.
 
 ## Validation checklist (manual)
 
@@ -96,9 +105,10 @@ Then verify:
 - Totals update correctly.
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
-- (`team.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`profile.html`, `profile-ai.html`, and `team.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
+- (`team.html` and `team-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
+- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
 - (`profile-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
+- (`team-ai.html`) AI Commentary status appears after team upload, generated member profiles/team dynamics commentary works in a supported Chrome desktop browser, and unsupported browsers show the copyable fallback prompt.
 
 ## Roadmap
 
