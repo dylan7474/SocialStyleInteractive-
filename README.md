@@ -11,7 +11,7 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository includes six static HTML entry points:
+This repository includes the following static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
@@ -23,6 +23,7 @@ This repository includes six static HTML entry points:
   - interaction lab,
   - peer-to-peer synergy analysis.
 - **`team-ai.html`**: AI-enabled team experience that keeps the `team.html` workflow and adds an executive-style AI Commentary report for generated member leadership notes and team dynamics commentary using Chrome's built-in Prompt API / Gemini Nano when available, with a copyable AI prompt fallback for unsupported browsers.
+- **`TeamPro-ai.html`**: AI-enabled extended team lab with all 10 Assessment rows always shown, individual AI Coaching Feedback on the Assessment tab, and team AI Commentary / executive reporting for uploaded profile JSON files.
 
 Use whichever file best matches your facilitation context.
 
@@ -32,7 +33,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open `index.html`, `profile.html`, `profiler.html`, `profile-ai.html`, `team.html`, or `team-ai.html` in a modern browser.
+2. Open `index.html`, `profile.html`, `profiler.html`, `profile-ai.html`, `team.html`, `team-ai.html`, or `TeamPro-ai.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -50,6 +51,7 @@ http://localhost:8000/profiler.html
 http://localhost:8000/profile-ai.html
 http://localhost:8000/team.html
 http://localhost:8000/team-ai.html
+http://localhost:8000/TeamPro-ai.html
 ```
 
 ## Basic controls
@@ -70,23 +72,24 @@ http://localhost:8000/team-ai.html
 - **Extended Signal Insights:** Shows the most stable style signal, biggest context shift, and an adaptability range percentage after analysis.
 - **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode in toggle-based profile pages. `profiler.html` always imports into the 10-set extended flow.
 
-### AI profile controls (`profile-ai.html`)
+### AI profile controls (`profile-ai.html` and `TeamPro-ai.html` Assessment tab)
 
 - **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is rendered into styled report sections so headings, bullets, numbered actions, and emphasis match the rest of the results page and printed business report.
 - **Copy AI Prompt fallback:** If the Prompt API is unavailable, cannot be checked, or on-device generation fails, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool. The fallback prompt is shown as plain text to make copying easy.
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
+- **TeamPro Assessment note:** `TeamPro-ai.html` keeps the Assessment tab in always-on 10-row Extended Deep-Dive mode without showing the previous always-enabled notice, then uses the same AI feedback flow after analysis.
 
-### Team-specific controls (`team.html` and `team-ai.html`)
+### Team-specific controls (`team.html`, `team-ai.html`, and `TeamPro-ai.html`)
 
 - **Upload Team Profiles:** Import multiple participant JSON files at once.
 - **Team Dashboard:** Review member distribution and aggregate style balance.
 - **Interaction Lab:** Review recommendations based on team composition.
 - **Team Synergy:** Compare any two members and inspect likely collaboration/tension patterns.
-- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` or `team-ai.html` to compare baseline style signals vs contextual style shifts.
-- **Reset Form (team assessment):** Clears all ranked rows, returns to baseline 5-row mode, and hides current analysis results.
+- **Extended Deep-Dive:** Add 5 extra ranking sets in `team.html` or `team-ai.html` to compare baseline style signals vs contextual style shifts. `TeamPro-ai.html` always shows all 10 Assessment rows.
+- **Reset Form (team assessment):** Clears all ranked rows and hides current analysis results. In `team.html` and `team-ai.html`, reset returns to baseline 5-row mode; in `TeamPro-ai.html`, reset keeps the 10-row Assessment visible.
 
-### AI team commentary controls (`team-ai.html`)
+### AI team commentary controls (`team-ai.html` and `TeamPro-ai.html`)
 
 - **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary.
 - **Copy AI Prompt fallback:** If Chrome Prompt API/Gemini Nano is unavailable, the same control displays an AI-ready prompt that can be copied into another AI tool.
@@ -107,10 +110,10 @@ Then verify:
 - Totals update correctly.
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
-- (`team.html` and `team-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
-- (`profile-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
-- (`team-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
+- (`team.html`, `team-ai.html`, and `TeamPro-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
+- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html` and `TeamPro-ai.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
+- (`profile-ai.html` and `TeamPro-ai.html` Assessment tab) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and unsupported browsers show the copyable fallback prompt.
+- (`team-ai.html` and `TeamPro-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
 
 ## Roadmap
 
