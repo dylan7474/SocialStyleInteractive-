@@ -26,6 +26,18 @@
         .report-prose li { margin: 0.35rem 0; }
         .report-prose strong { color: #0f172a; font-weight: 800; }
         .report-prose.fallback-prompt { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 0.78rem; }
+        .ai-feedback-formatted { white-space: normal; }
+        .ai-feedback-formatted.plain { white-space: pre-wrap; }
+        .ai-feedback-formatted h3 { margin: 1.25rem 0 0.5rem; font-size: 1rem; font-weight: 900; color: #1e293b; }
+        .ai-feedback-formatted h3:first-child { margin-top: 0; }
+        .ai-feedback-formatted p { margin: 0.5rem 0; color: #475569; }
+        .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.5rem 0 1rem 1.25rem; color: #475569; }
+        .ai-feedback-formatted li { margin: 0.4rem 0; padding-left: 0.15rem; }
+        .ai-feedback-formatted strong { color: #334155; font-weight: 800; }
+        .ai-feedback-formatted .ai-title { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; font-size: 1.25rem; font-weight: 900; color: #312e81; }
+        .ai-feedback-formatted .ai-section { margin-top: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 1rem; background: #ffffff; }
+        .ai-feedback-formatted .ai-section h3 { display: flex; align-items: center; gap: 0.5rem; }
+        .ai-feedback-formatted .ai-section h3::before { content: ''; display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 999px; background: #6366f1; }
         .report-page-break { break-before: page; page-break-before: always; }
 
         @media print {
@@ -77,9 +89,6 @@
                 <button id="resetBtn" class="bg-rose-50 text-rose-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all ml-auto">Reset Form</button>
             </div>
 
-            <div id="extendedNotice" class="no-print px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs text-indigo-800 font-medium">
-                Extended Deep-Dive is always enabled: complete all 10 ranking sets to unlock deeper signal analysis (core vs extended trend, style stability, and adaptability range).
-            </div>
 
             <div id="assessmentContainer" class="no-print">
                 <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
@@ -120,6 +129,17 @@
                 <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
                     <h3 class="text-lg font-black text-slate-800 mb-3">Extended Signal Insights</h3>
                     <div id="advancedInsights"></div>
+                </div>
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-4">
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800">AI Coaching Feedback</h3>
+                            <p class="text-sm text-slate-500 mt-1">Generate private, practical coaching feedback from your completed assessment. Uses Chrome's on-device Prompt API when available, or creates a copyable AI-ready prompt.</p>
+                        </div>
+                        <button id="generateAiFeedbackBtn" class="no-print bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Feedback</button>
+                    </div>
+                    <div id="aiStatus" class="no-print mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Complete the assessment to enable AI coaching feedback.</div>
+                    <div id="aiFeedbackOutput" class="ai-feedback-formatted max-w-none text-sm leading-relaxed bg-slate-50 border border-slate-100 rounded-2xl p-5 min-h-[120px]">Complete the assessment, then generate AI coaching feedback for your profile.</div>
                 </div>
                 <div id="styleProfiles" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
@@ -356,6 +376,8 @@
         let userResponses = {};
         let teamData = [];
         let teamAiStatus = { canAttempt: false, message: 'Upload team profiles to enable AI commentary.' };
+        let promptApiStatus = { available: false, canAttempt: false, message: 'Complete the assessment to enable AI coaching feedback.' };
+        let latestAnalysisContext = null;
 
 
         function getDominantStyle(member) {
@@ -434,6 +456,173 @@
             });
             closeList();
             return html || '<p>AI-generated team commentary will appear here.</p>';
+        }
+
+        function formatInlineMarkdown(value) {
+            return escapeHtml(value)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/__(.*?)__/g, '<strong>$1</strong>');
+        }
+
+        function setAiStatus(message, statusType = 'waiting') {
+            const statusEl = document.getElementById('aiStatus');
+            if (!statusEl) return;
+            const statusClasses = {
+                ready: 'bg-emerald-50 border-emerald-100 text-emerald-800',
+                waiting: 'bg-amber-50 border-amber-100 text-amber-800',
+                error: 'bg-rose-50 border-rose-100 text-rose-800'
+            };
+            statusEl.textContent = message;
+            statusEl.className = `no-print mb-4 p-4 rounded-2xl border text-sm ${statusClasses[statusType] || statusClasses.waiting}`;
+        }
+
+        function updateAiButtonState() {
+            const button = document.getElementById('generateAiFeedbackBtn');
+            if (!button) return;
+            button.disabled = !latestAnalysisContext;
+            button.textContent = promptApiStatus.canAttempt ? 'Generate AI Feedback' : 'Copy AI Prompt';
+        }
+
+        async function getPromptAvailability(api) {
+            if (typeof api.availability === 'function') return api.availability();
+            if (typeof api.canCreateTextSession === 'function') return api.canCreateTextSession();
+            return null;
+        }
+
+        function isPromptReady(availability) {
+            return availability === 'available' || availability === 'readily';
+        }
+
+        function isPromptDownloadable(availability) {
+            return availability === 'downloadable' || availability === 'after-download' || availability === 'downloading';
+        }
+
+        async function refreshPromptApiStatus() {
+            if (!latestAnalysisContext) {
+                promptApiStatus = { available: false, canAttempt: false, message: 'Complete the assessment to enable AI coaching feedback.' };
+                setAiStatus(promptApiStatus.message, 'waiting');
+                updateAiButtonState();
+                return;
+            }
+            try {
+                const api = getLanguageModelApi();
+                if (!api) {
+                    promptApiStatus = { available: false, canAttempt: false, message: 'Chrome Prompt API was not detected. You can still copy the generated prompt below into your preferred AI tool.' };
+                } else {
+                    const availability = await getPromptAvailability(api);
+                    if (availability) {
+                        const ready = isPromptReady(availability);
+                        const downloadable = isPromptDownloadable(availability);
+                        const downloadMessage = downloadable ? ' Click Generate AI Feedback to let Chrome download Gemini Nano, then the feedback will run automatically.' : '';
+                        promptApiStatus = {
+                            available: ready,
+                            canAttempt: ready || downloadable,
+                            message: ready || downloadable ? `Prompt API status: ${availability}.${downloadMessage}` : `Prompt API status: ${availability}. You can still copy the generated prompt below into your preferred AI tool.`
+                        };
+                    } else {
+                        const canCreate = typeof api.create === 'function' || typeof api.createTextSession === 'function';
+                        promptApiStatus = { available: canCreate, canAttempt: canCreate, message: canCreate ? 'Prompt API detected. Availability details are not exposed in this Chrome build.' : 'Prompt API shape was detected, but no supported session creator was found. You can still copy the generated prompt below.' };
+                    }
+                }
+            } catch (error) {
+                promptApiStatus = { available: false, canAttempt: false, message: `Chrome Prompt API availability could not be checked (${error.message || error}). You can still copy the generated prompt below.` };
+            }
+            setAiStatus(promptApiStatus.message, promptApiStatus.available ? 'ready' : (promptApiStatus.canAttempt ? 'waiting' : 'error'));
+            updateAiButtonState();
+        }
+
+        function buildAiPrompt(context) {
+            const orderedStyles = context.styles.slice().sort((a, b) => b.score - a.score);
+            return `You are a practical workplace communication coach. Analyze this Social Style self-assessment without diagnosing personality or making medical claims.
+Mode: 10-row Extended Deep-Dive
+Scores: ${context.styles.map(s => `${s.name}=${s.score} (core ${s.coreScore}, extended ${s.extendedScore})`).join(', ')}
+Primary style: ${orderedStyles[0].name}; secondary style: ${orderedStyles[1].name}.
+Advanced insights: stable signal=${context.stableStyle}; biggest context shift=${context.shiftingStyle}; adaptability range=${context.adaptabilityRange}%.
+
+Return concise Markdown with these headings:
+1. Snapshot
+2. Strengths others may notice
+3. Watch-outs under pressure
+4. How to flex with Driver, Expressive, Amiable, and Analytical colleagues
+5. Two coaching actions for this week
+Keep it supportive, concrete, and under 450 words.`;
+        }
+
+        function renderAiFeedback(markdownText) {
+            const output = document.getElementById('aiFeedbackOutput');
+            output.classList.remove('plain');
+            const lines = markdownText.replace(/\\n/g, '\n').split(/\r?\n/);
+            const html = [];
+            let listType = null;
+            let sectionOpen = false;
+            const closeList = () => { if (listType) { html.push(`</${listType}>`); listType = null; } };
+            const closeSection = () => { closeList(); if (sectionOpen) { html.push('</section>'); sectionOpen = false; } };
+            lines.forEach(rawLine => {
+                const line = rawLine.trim();
+                if (!line) { closeList(); return; }
+                const titleMatch = line.match(/^##\s+(.+)$/);
+                if (titleMatch) { closeSection(); html.push(`<div class="ai-title">${formatInlineMarkdown(titleMatch[1])}</div>`); return; }
+                const headingMatch = line.match(/^###\s+(?:\d+\.\s*)?(.+)$/) || line.match(/^\d+\.\s+([^:]+)$/);
+                if (headingMatch) { closeSection(); sectionOpen = true; html.push('<section class="ai-section">'); html.push(`<h3>${formatInlineMarkdown(headingMatch[1])}</h3>`); return; }
+                const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+                if (bulletMatch) { if (listType !== 'ul') { closeList(); html.push('<ul>'); listType = 'ul'; } html.push(`<li>${formatInlineMarkdown(bulletMatch[1])}</li>`); return; }
+                const numberedMatch = line.match(/^\d+\.\s+(.*)$/);
+                if (numberedMatch) { if (listType !== 'ol') { closeList(); html.push('<ol>'); listType = 'ol'; } html.push(`<li>${formatInlineMarkdown(numberedMatch[1])}</li>`); return; }
+                closeList();
+                html.push(`<p>${formatInlineMarkdown(line)}</p>`);
+            });
+            closeSection();
+            output.innerHTML = html.join('') || escapeHtml(markdownText);
+        }
+
+        function setPlainAiOutput(message) {
+            const output = document.getElementById('aiFeedbackOutput');
+            output.classList.add('plain');
+            output.textContent = message;
+        }
+
+        async function generateAiFeedback() {
+            const button = document.getElementById('generateAiFeedbackBtn');
+            const api = getLanguageModelApi();
+            if (!latestAnalysisContext) return;
+            const prompt = buildAiPrompt(latestAnalysisContext);
+            if (!api || !promptApiStatus.canAttempt) {
+                const copied = await copyTextToClipboard(prompt);
+                setAiStatus(copied ? 'Chrome Prompt API is unavailable, so the AI-ready prompt was copied to your clipboard.' : 'Chrome Prompt API is unavailable. Select and copy the AI-ready prompt below into your preferred AI tool.', copied ? 'ready' : 'waiting');
+                setPlainAiOutput(prompt);
+                return;
+            }
+            button.disabled = true;
+            setPlainAiOutput('Generating on-device AI feedback...');
+            let session;
+            try {
+                const sessionOptions = {
+                    systemPrompt: 'You write concise workplace coaching feedback from assessment scores.',
+                    monitor(monitor) {
+                        monitor.addEventListener('downloadprogress', (event) => {
+                            const loaded = Number.isFinite(event.loaded) ? Math.round(event.loaded * 100) : null;
+                            const progress = loaded === null ? '' : ` (${loaded}%)`;
+                            setAiStatus(`Downloading Gemini Nano for Chrome Prompt API${progress}... Keep this tab open.`, 'waiting');
+                            setPlainAiOutput(`Downloading the on-device AI model${progress}. Feedback will start automatically when the download completes.`);
+                        });
+                    }
+                };
+                session = typeof api.create === 'function' ? await api.create(sessionOptions) : await api.createTextSession(sessionOptions);
+                promptApiStatus = { ...promptApiStatus, available: true, canAttempt: true };
+                setAiStatus('Prompt API ready. Generating private on-device feedback...', 'ready');
+                const response = await session.prompt(prompt);
+                renderAiFeedback(response.trim());
+            } catch (error) {
+                setPlainAiOutput(`AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`);
+                await refreshPromptApiStatus();
+                if (!promptApiStatus.canAttempt) {
+                    const copied = await copyTextToClipboard(prompt);
+                    setPlainAiOutput(`${copied ? 'The AI-ready prompt was copied to your clipboard because on-device generation failed.' : 'On-device generation failed. Select and copy this AI-ready prompt into your preferred AI tool.'}\n\n${prompt}`);
+                }
+            } finally {
+                if (session && typeof session.destroy === 'function') session.destroy();
+                updateAiButtonState();
+            }
         }
 
         function setTeamAiOutput(message, asMarkdown = false) {
@@ -948,8 +1137,22 @@ Use a professional executive tone, emphasize observable workplace behaviors, inc
                 return `<div class="p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center justify-between"><span class="font-bold text-slate-700">${styleDetails[k].name}</span><span class="font-black text-xl">${scores.totalScores[i]}</span></div><div class="text-[10px] text-slate-400 font-semibold mt-1">${coreText}${extendedText}</div></div>`;
             }).join('');
             updateAdvancedInsights(scores.coreScores, scores.extendedScores);
+            const styleKeys = ['col1', 'col2', 'col3', 'col4'];
+            const totalDiff = scores.coreScores.map((score, idx) => Math.abs(score - scores.extendedScores[idx]));
+            const totalCore = scores.coreScores.reduce((a, b) => a + b, 0);
+            const totalExtended = scores.extendedScores.reduce((a, b) => a + b, 0);
+            latestAnalysisContext = {
+                styles: styleKeys.map((key, idx) => ({ name: styleDetails[key].name, score: scores.totalScores[idx], coreScore: scores.coreScores[idx], extendedScore: scores.extendedScores[idx] })),
+                stableStyle: styleDetails[styleKeys[totalDiff.indexOf(Math.min(...totalDiff))]].name,
+                shiftingStyle: styleDetails[styleKeys[totalDiff.indexOf(Math.max(...totalDiff))]].name,
+                adaptabilityRange: Math.round((totalDiff.reduce((a, b) => a + b, 0) / Math.max(1, totalCore + totalExtended)) * 100)
+            };
+            setPlainAiOutput('AI coaching feedback has not been generated yet. Use Generate AI Feedback to create a personalized coaching narrative, or copy the AI-ready prompt if Chrome Prompt API is unavailable.');
+            refreshPromptApiStatus();
             document.getElementById('styleProfiles').innerHTML = Object.keys(styleDetails).map((k, i) => `<div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm"><div class="flex items-center gap-2 mb-2"><div class="w-3 h-3 rounded-full" style="background-color: ${styleDetails[k].color}"></div><h4 class="font-black text-slate-800">${styleDetails[k].name}</h4></div><p class="text-xs text-slate-500 italic">${styleDetails[k].characteristics}</p></div>`).join('');
         };
+
+        document.getElementById('generateAiFeedbackBtn').onclick = generateAiFeedback;
 
         document.getElementById('exportFileBtn').onclick = () => { const blob = new Blob([JSON.stringify(userResponses)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `my-social-style.json`; a.click(); };
         document.getElementById('importFileBtn').onclick = () => document.getElementById('fileInput').click();
@@ -973,9 +1176,14 @@ Use a professional executive tone, emphasize observable workplace behaviors, inc
                 updateGridUI();
                 document.getElementById('assessmentContainer').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');
+                latestAnalysisContext = null;
+                setAiStatus('Complete the assessment to enable AI coaching feedback.', 'waiting');
+                updateAiButtonState();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
+
+        updateAiButtonState();
 
     </script>
 </body>
