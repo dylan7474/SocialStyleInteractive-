@@ -93,7 +93,7 @@ http://localhost:8000/TeamPro.html
 
 ### AI team commentary controls (`team-ai.html`, `TeamPro-ai.html`, and `TeamPro.html`)
 
-- **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary. In `TeamPro.html`, the generated prompt/report also requests a team interaction map, collaboration strengths, weaknesses/blind spots, potential conflict patterns, and conflict-prevention recommendations.
+- **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary. In `TeamPro.html`, the generated prompt/report also requests a team interaction map, collaboration strengths, weaknesses/blind spots, potential conflict patterns, and conflict-prevention recommendations, with interaction and conflict commentary framed around named team members and working pairs rather than generic style-only descriptions.
 - **Copy AI Prompt fallback:** If Chrome Prompt API/Gemini Nano is unavailable, the same control displays an AI-ready prompt that can be copied into another AI tool.
 - **Privacy note:** Supported Chrome builds run the commentary in-browser with the built-in on-device model; this repository does not send team data to an app server or require an API key.
 - **Print Executive Report:** The AI Commentary tab uses a boardroom-ready report layout with an executive cover band, summary metric cards, facilitator guidance, styled Markdown output, and print-specific formatting that hides controls and avoids awkward section splits.
