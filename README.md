@@ -15,7 +15,7 @@ This repository includes eight static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
-- **`profiler.html`**: individual extended-only profile deep-dive with all 10 ranking sets always enabled and no Extended Deep-Dive toggle.
+- **`profiler.html`**: AI-enabled individual extended-only profile deep-dive with all 10 ranking sets always enabled, no Extended Deep-Dive toggle, and the same on-device coaching feedback/fallback prompt flow as `profile-ai.html`.
 - **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available, with generated Markdown rendered into styled report sections and a copyable fallback prompt for unsupported browsers.
 - **`profiler-ai.html`**: AI-enabled extended-only profile deep-dive with all 10 ranking sets always enabled, no Extended Deep-Dive toggle, and the same on-device coaching feedback/fallback prompt flow as `profile-ai.html`.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
@@ -65,7 +65,7 @@ http://localhost:8000/TeamPro-ai.html
 - **Export:** Saves your current assessment responses to a local JSON file. In `profile.html`, `profiler.html`, `profile-ai.html`, and `profiler-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
-- **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html` and `profiler-ai.html`, the print report is formatted as a compact business-ready report with deliberate page breaks so the profile overview, AI Coaching Feedback, and style reference sections each start on their own page and avoid mid-section splits when printed.
+- **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html`, `profiler.html`, and `profiler-ai.html`, the print report is formatted as a compact business-ready report with deliberate page breaks so the profile overview, AI Coaching Feedback, and style reference sections each start on their own page and avoid mid-section splits when printed.
 
 ### Profile Deep-Dive controls (`profile.html`, `profiler.html`, `profile-ai.html`, and `profiler-ai.html`)
 
@@ -74,7 +74,7 @@ http://localhost:8000/TeamPro-ai.html
 - **Extended Signal Insights:** Shows the most stable style signal, biggest context shift, and an adaptability range percentage after analysis.
 - **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode in toggle-based profile pages. `profiler.html` and `profiler-ai.html` always import into the 10-set extended flow.
 
-### AI profile controls (`profile-ai.html` and `profiler-ai.html`)
+### AI profile controls (`profile-ai.html`, `profiler.html`, and `profiler-ai.html`)
 
 - **Generate AI Feedback:** After generating the standard kite analysis, checks for Chrome's built-in Prompt API and uses an on-device language model to draft concise coaching feedback from the completed scores. Generated Markdown is rendered into styled report sections so headings, bullets, numbered actions, and emphasis match the rest of the results page and printed business report.
 - **Copy AI Prompt fallback:** If the Prompt API is unavailable, cannot be checked, or on-device generation fails, the same button changes to **Copy AI Prompt** and displays an AI-ready prompt that can be pasted into another AI tool. The fallback prompt is shown as plain text to make copying easy.
@@ -113,7 +113,7 @@ Then verify:
 - Results render correctly and print styles hide controls.
 - (`team.html`, `team-ai.html`, and `TeamPro-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
 - (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html`, `profiler-ai.html`, and `TeamPro-ai.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
-- (`profile-ai.html` and `profiler-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
+- (`profile-ai.html`, `profiler.html`, and `profiler-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
 - (`team-ai.html` and `TeamPro-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
 
 ## Roadmap
