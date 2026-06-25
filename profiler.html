@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Style Profiler Extended Deep-Dive</title>
+    <title>AI Social Style Profiler Extended Deep-Dive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -14,12 +14,70 @@
         .rank-btn.active { transform: scale(1.1); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         
         canvas { max-width: 100%; height: auto; }
+        .ai-feedback-formatted { white-space: normal; }
+        .ai-feedback-formatted.plain { white-space: pre-wrap; }
+        .ai-feedback-formatted h3 { margin: 1.25rem 0 0.5rem; font-size: 1rem; font-weight: 900; color: #1e293b; }
+        .ai-feedback-formatted h3:first-child { margin-top: 0; }
+        .ai-feedback-formatted p { margin: 0.5rem 0; color: #475569; }
+        .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.5rem 0 1rem 1.25rem; color: #475569; }
+        .ai-feedback-formatted li { margin: 0.4rem 0; padding-left: 0.15rem; }
+        .ai-feedback-formatted strong { color: #334155; font-weight: 800; }
+        .ai-feedback-formatted .ai-title { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; font-size: 1.25rem; font-weight: 900; color: #312e81; }
+        .ai-feedback-formatted .ai-section { margin-top: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 1rem; background: #ffffff; }
+        .ai-feedback-formatted .ai-section h3 { display: flex; align-items: center; gap: 0.5rem; }
+        .ai-feedback-formatted .ai-section h3::before { content: ''; display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 999px; background: #6366f1; }
+        .print-only { display: none; }
+        .report-meta { color: #64748b; font-size: 0.8rem; }
+        .report-kicker { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px; background: #eef2ff; color: #4338ca; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.08em; padding: 0.35rem 0.65rem; text-transform: uppercase; }
         
         @media print {
+            @page { size: letter; margin: 0.42in; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            body { background-color: white; padding: 0; }
+            .print-only { display: block !important; }
+            html, body { background-color: white; padding: 0; color: #0f172a; font-size: 9pt; line-height: 1.25; }
+            header { margin-bottom: 0.18in !important; padding-bottom: 0.08in; border-bottom: 2px solid #1e293b; text-align: left !important; break-after: avoid; page-break-after: avoid; }
+            header h1 { font-size: 17pt !important; margin-bottom: 0.03in !important; color: #0f172a !important; }
+            header p { max-width: none !important; font-size: 8pt !important; color: #475569 !important; }
             .print-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
-            #resultsSection { display: block !important; margin-top: 0; }
+            #resultsSection { display: block !important; margin-top: 0 !important; }
+            #resultsSection > div { margin-top: 0 !important; }
+            #resultsSection > div + div { margin-top: 0 !important; }
+            #resultsSection > .grid:first-of-type { display: grid !important; grid-template-columns: 0.82fr 1.18fr !important; gap: 0.12in !important; padding: 0.12in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
+            #resultsSection .shadow-xl, #resultsSection .shadow-lg, #resultsSection .shadow-sm { box-shadow: none !important; }
+            #resultsSection .rounded-3xl, #resultsSection .rounded-2xl, #resultsSection .rounded-xl { border-radius: 0.08in !important; }
+            #resultsSection .p-8 { padding: 0.12in !important; }
+            #resultsSection .p-6 { padding: 0.08in !important; }
+            #resultsSection h2 { font-size: 15pt !important; margin-bottom: 0.08in !important; }
+            #resultsSection h3 { font-size: 12pt !important; margin-bottom: 0.06in !important; }
+            #kiteChart { width: 2.05in !important; height: 2.05in !important; margin: 0 auto; }
+            #kiteChart + div { margin-top: 0.08in !important; padding: 0.08in !important; font-size: 7.6pt !important; line-height: 1.2 !important; }
+            #scoreSummary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.045in !important; }
+            #scoreSummary > div { padding: 0.045in !important; border: 1px solid #cbd5e1 !important; }
+            #scoreSummary + div { padding: 0.06in !important; font-size: 7.4pt !important; line-height: 1.15 !important; }
+            #advancedInsights > div { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 0.06in !important; }
+            #advancedInsights > div > div { padding: 0.055in !important; }
+            #advancedInsights p { font-size: 7.2pt !important; line-height: 1.15 !important; }
+            #aiFeedbackPanel { padding: 0.14in !important; border: 1.5px solid #4338ca !important; background: #ffffff !important; break-before: page; page-break-before: always; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
+            #aiFeedbackPanel .ai-print-heading { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 0.16in; margin-bottom: 0.08in !important; padding-bottom: 0.07in; border-bottom: 1px solid #cbd5e1; }
+            #aiFeedbackPanel h3 { font-size: 15pt !important; color: #111827 !important; margin: 0 !important; }
+            #aiStatus { display: none !important; }
+            #aiFeedbackOutput { min-height: 0 !important; padding: 0 !important; border: 0 !important; background: #ffffff !important; font-size: 8.35pt !important; line-height: 1.24 !important; }
+            .ai-feedback-formatted .ai-title { font-size: 10.5pt !important; margin-bottom: 0.05in !important; padding-bottom: 0.04in !important; }
+            .ai-feedback-formatted .ai-section { margin-top: 0.055in !important; padding: 0.06in 0.08in !important; border: 1px solid #dbeafe !important; border-left: 3px solid #4f46e5 !important; border-radius: 0.06in !important; break-inside: avoid; page-break-inside: avoid; }
+            .ai-feedback-formatted h3 { font-size: 9.2pt !important; margin: 0 0 0.025in !important; }
+            .ai-feedback-formatted p { margin: 0.025in 0 !important; color: #334155 !important; }
+            .ai-feedback-formatted ul, .ai-feedback-formatted ol { margin: 0.025in 0 0.045in 0.15in !important; color: #334155 !important; }
+            .ai-feedback-formatted li { margin: 0.012in 0 !important; }
+            #styleProfiles { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.09in !important; padding-bottom: 0 !important; margin-top: 0 !important; break-before: page; page-break-before: always; }
+            #styleProfiles > div { padding: 0.09in !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; page-break-inside: avoid; }
+            #styleProfiles h4 { font-size: 14pt !important; }
+            #styleProfiles .mb-6 { margin-bottom: 0.07in !important; }
+            #styleProfiles .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.07in !important; }
+            #styleProfiles p, #styleProfiles li { font-size: 7.4pt !important; line-height: 1.18 !important; }
+            #styleProfiles .p-4 { padding: 0.06in !important; }
+            #styleProfiles .pt-4 { padding-top: 0.06in !important; }
+            #styleProfiles ul { margin: 0 !important; }
         }
 
         /* Custom scrollbar for table */
@@ -40,8 +98,8 @@
         </div>
 
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-black text-slate-800 tracking-tight mb-2">Social Style Profiler Extended Deep-Dive</h1>
-            <p class="text-slate-500 max-w-2xl mx-auto">Interactive self-assessment using the full extended deep-dive signal analysis.</p>
+            <h1 class="text-4xl font-black text-slate-800 tracking-tight mb-2">AI Social Style Profiler Extended Deep-Dive</h1>
+            <p class="text-slate-500 max-w-2xl mx-auto">Interactive self-assessment with the full extended deep-dive question set and optional on-device AI feedback powered by Chrome's Prompt API.</p>
         </header>
 
         <!-- Main Controls -->
@@ -68,9 +126,6 @@
             <button id="resetBtn" class="bg-rose-50 text-rose-700 px-4 py-2 rounded-lg font-semibold hover:bg-rose-100 transition-all ml-auto">Reset</button>
         </div>
 
-        <div id="extendedNotice" class="no-print mb-6 px-5 py-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-sm text-indigo-800 font-medium">
-            Extended Deep-Dive is always on: complete all 10 ranking sets to unlock deeper signal analysis (core vs. extended trend, style stability, and adaptability range).
-        </div>
 
         <div id="assessmentContainer" class="no-print">
             <div class="overflow-x-auto custom-scrollbar pb-4">
@@ -102,7 +157,7 @@
             <div class="flex flex-col items-center mt-8 gap-4">
                 <div id="progressDisplay" class="text-sm font-bold text-slate-400">0 of 10 rows complete</div>
                 <button id="submitBtn" disabled class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-16 rounded-full transition-all shadow-xl transform hover:scale-105 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed">
-                    GENERATE KITE ANALYSIS
+                    GENERATE AI-READY ANALYSIS
                 </button>
             </div>
         </div>
@@ -129,18 +184,33 @@
                         <p>The shape of your kite represents your <strong>strength of preference</strong>. Points further from the center indicate a higher reliance on that specific style, while a balanced diamond suggests high versatility across different social situations.</p>
                     </div>
                 </div>
-                <div class="space-y-6">
-                    <h3 class="text-xl font-black text-slate-800 mb-4">Preference Strengths</h3>
-                    <div id="scoreSummary" class="space-y-3"></div>
-                    <div class="p-6 bg-indigo-600 text-white rounded-2xl shadow-lg">
+                <div class="space-y-4">
+                    <h3 class="text-xl font-black text-slate-800 mb-2">Preference Strengths</h3>
+                    <div id="scoreSummary" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                    <div class="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg">
                         <h4 class="font-black mb-2 uppercase tracking-tight text-indigo-100">The Power of Flexing</h4>
                         <p class="text-sm leading-relaxed opacity-90">Social styles are about <strong>perception</strong>. By understanding your own "home" style, you can learn to intentionally flex your behavior to match the needs of others, building trust and reducing friction in high-stakes environments.</p>
                     </div>
-                    <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="font-black mb-3 uppercase tracking-tight text-slate-800">Extended Signal Insights</h4>
+                    <div class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-black mb-2 uppercase tracking-tight text-slate-800">Extended Signal Insights</h4>
                         <div id="advancedInsights"></div>
                     </div>
                 </div>
+            </div>
+
+
+            <div id="aiFeedbackPanel" class="bg-white p-8 rounded-3xl shadow-xl border border-indigo-100">
+                <div class="ai-print-heading flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div>
+                        <div class="report-kicker">AI Coaching Feedback</div>
+                        <h3 class="text-2xl font-black text-slate-800">AI Coaching Feedback</h3>
+                        <p class="text-sm text-slate-500 mt-2 max-w-2xl no-print">Generate private, on-device analysis with Gemini Nano in supported Chrome desktop browsers. No API key or server call is used by this page.</p>
+                        <p id="aiPrintMeta" class="report-meta print-only mt-2">AI feedback status will appear here for the printed report.</p>
+                    </div>
+                    <button id="generateAiFeedbackBtn" class="no-print bg-indigo-600 text-white px-5 py-3 rounded-xl font-black hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">Generate AI Feedback</button>
+                </div>
+                <div id="aiStatus" class="no-print mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-600">Checking Chrome Prompt API availability...</div>
+                <div id="aiFeedbackOutput" class="ai-feedback-formatted max-w-none text-sm leading-relaxed bg-slate-50 border border-slate-100 rounded-2xl p-5 min-h-[120px]">Complete the assessment, then generate AI coaching feedback for your profile.</div>
             </div>
 
             <div id="styleProfiles" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20"></div>
@@ -189,7 +259,8 @@
             { id: 9, label: "10", col1: "Act now", col2: "Engage people", col3: "Seek consensus", col4: "Request clarity" }
         ];
 
-        const getActiveTraitsData = () => coreTraitsData.concat(extendedTraitsData);
+        const extendedModeEnabled = true;
+        const getActiveTraitsData = () => extendedModeEnabled ? coreTraitsData.concat(extendedTraitsData) : coreTraitsData;
 
         const styleDetails = {
             col1: { name: "Driver", color: "#ef4444", characteristics: "Results focused, task oriented, likes control, can be impatient.", workspace: "Charts of goals, Mission Statement.", influence: ["Be fast/decisive", "Be succinct", "Avoid qualifiers", "Stick to facts"], goodDay: ["Efficient", "Determined", "Logical"], badDay: ["Controlling", "Insensitive", "Demanding"] },
@@ -421,10 +492,270 @@
             });
         }
 
+        let latestAnalysisContext = null;
+        let aiFeedbackGeneratedAt = null;
+        let promptApiStatus = { available: false, canAttempt: false, message: 'Not checked yet.', fallbackPrompt: false };
+
+        async function copyTextToClipboard(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (error) {
+                console.warn('Clipboard API copy failed; falling back to manual selection.', error);
+            }
+            return false;
+        }
+
+        function getLanguageModelApi() {
+            if ('LanguageModel' in window) return window.LanguageModel;
+            if (window.ai && window.ai.languageModel) return window.ai.languageModel;
+            if (window.ai && window.ai.LanguageModel) return window.ai.LanguageModel;
+            return null;
+        }
+
+        function updateAiPrintMeta(statusMessage = '') {
+            const meta = document.getElementById('aiPrintMeta');
+            if (!meta) return;
+            const name = latestAnalysisContext?.participantName || 'Unnamed participant';
+            const mode = latestAnalysisContext?.extendedModeEnabled ? '10-row Extended Deep-Dive' : '5-row Core';
+            const generated = aiFeedbackGeneratedAt ? `AI feedback generated ${aiFeedbackGeneratedAt}.` : 'AI feedback not yet generated; section may contain the AI-ready prompt or browser status note.';
+            meta.textContent = `${name} • ${mode} • ${generated}${statusMessage ? ` Status: ${statusMessage}` : ''}`;
+        }
+
+        function setAiStatus(message, statusType = 'waiting') {
+            const statusEl = document.getElementById('aiStatus');
+            const statusClasses = {
+                ready: 'bg-emerald-50 border-emerald-100 text-emerald-800',
+                waiting: 'bg-amber-50 border-amber-100 text-amber-800',
+                error: 'bg-rose-50 border-rose-100 text-rose-800'
+            };
+            statusEl.textContent = message;
+            statusEl.className = `no-print mb-4 p-4 rounded-2xl border text-sm ${statusClasses[statusType] || statusClasses.waiting}`;
+            updateAiPrintMeta(message);
+        }
+
+        function updateAiButtonState() {
+            const button = document.getElementById('generateAiFeedbackBtn');
+            button.disabled = !latestAnalysisContext;
+            button.textContent = promptApiStatus.canAttempt ? 'Generate AI Feedback' : 'Copy AI Prompt';
+        }
+
+        async function getPromptAvailability(api) {
+            if (typeof api.availability === 'function') return api.availability();
+            if (typeof api.canCreateTextSession === 'function') return api.canCreateTextSession();
+            return null;
+        }
+
+        function isPromptReady(availability) {
+            return availability === 'available' || availability === 'readily';
+        }
+
+        function isPromptDownloadable(availability) {
+            return availability === 'downloadable' || availability === 'after-download' || availability === 'downloading';
+        }
+
+        async function refreshPromptApiStatus() {
+            try {
+                const api = getLanguageModelApi();
+                if (!api) {
+                    promptApiStatus = { available: false, canAttempt: false, fallbackPrompt: true, message: 'Chrome Prompt API was not detected. You can still copy the generated prompt below into your preferred AI tool.' };
+                } else {
+                    const availability = await getPromptAvailability(api);
+                    if (availability) {
+                        const ready = isPromptReady(availability);
+                        const downloadable = isPromptDownloadable(availability);
+                        const downloadMessage = downloadable ? ' Click Generate AI Feedback to let Chrome download Gemini Nano, then the feedback will run automatically.' : '';
+                        promptApiStatus = {
+                            available: ready,
+                            canAttempt: ready || downloadable,
+                            fallbackPrompt: !ready && !downloadable,
+                            message: ready || downloadable ? `Prompt API status: ${availability}.${downloadMessage}` : `Prompt API status: ${availability}. You can still copy the generated prompt below into your preferred AI tool.`
+                        };
+                    } else {
+                        const canCreate = typeof api.create === 'function' || typeof api.createTextSession === 'function';
+                        promptApiStatus = { available: canCreate, canAttempt: canCreate, fallbackPrompt: !canCreate, message: canCreate ? 'Prompt API detected. Availability details are not exposed in this Chrome build.' : 'Prompt API shape was detected, but no supported session creator was found. You can still copy the generated prompt below.' };
+                    }
+                }
+            } catch (error) {
+                promptApiStatus = { available: false, canAttempt: false, fallbackPrompt: true, message: `Chrome Prompt API availability could not be checked (${error.message || error}). You can still copy the generated prompt below.` };
+            }
+            setAiStatus(promptApiStatus.message, promptApiStatus.available ? 'ready' : (promptApiStatus.canAttempt ? 'waiting' : 'error'));
+            updateAiButtonState();
+        }
+
+        function buildAiPrompt(context) {
+            const orderedStyles = context.styles.slice().sort((a, b) => b.score - a.score);
+            return `You are a practical workplace communication coach. Analyze this Social Style self-assessment without diagnosing personality or making medical claims.
+Participant: ${context.participantName || 'Unnamed participant'}
+Mode: ${context.extendedModeEnabled ? '10-row Extended Deep-Dive' : '5-row Core'}
+Scores: ${context.styles.map(s => `${s.name}=${s.score}${context.extendedModeEnabled ? ` (core ${s.coreScore}, extended ${s.extendedScore})` : ''}`).join(', ')}
+Primary style: ${orderedStyles[0].name}; secondary style: ${orderedStyles[1].name}.
+Advanced insights: stable signal=${context.stableStyle}; biggest context shift=${context.shiftingStyle}; adaptability range=${context.adaptabilityRange}%.
+
+Return concise Markdown with these headings:
+1. Snapshot
+2. Strengths others may notice
+3. Watch-outs under pressure
+4. How to flex with Driver, Expressive, Amiable, and Analytical colleagues
+5. Two coaching actions for this week
+Keep it supportive, concrete, and under 450 words.`;
+        }
+
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatInlineMarkdown(value) {
+            return escapeHtml(value)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/__(.*?)__/g, '<strong>$1</strong>');
+        }
+
+        function renderAiFeedback(markdownText) {
+            aiFeedbackGeneratedAt = new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+            updateAiPrintMeta('Generated coaching feedback included.');
+            const output = document.getElementById('aiFeedbackOutput');
+            output.classList.remove('plain');
+            const lines = markdownText.replace(/\\n/g, '\n').split(/\r?\n/);
+            const html = [];
+            let listType = null;
+            let sectionOpen = false;
+
+            const closeList = () => {
+                if (listType) {
+                    html.push(`</${listType}>`);
+                    listType = null;
+                }
+            };
+            const closeSection = () => {
+                closeList();
+                if (sectionOpen) {
+                    html.push('</section>');
+                    sectionOpen = false;
+                }
+            };
+
+            lines.forEach(rawLine => {
+                const line = rawLine.trim();
+                if (!line) {
+                    closeList();
+                    return;
+                }
+
+                const titleMatch = line.match(/^##\s+(.+)$/);
+                if (titleMatch) {
+                    closeSection();
+                    html.push(`<div class="ai-title">${formatInlineMarkdown(titleMatch[1])}</div>`);
+                    return;
+                }
+
+                const headingMatch = line.match(/^###\s+(?:\d+\.\s*)?(.+)$/) || line.match(/^\d+\.\s+([^:]+)$/);
+                if (headingMatch) {
+                    closeSection();
+                    sectionOpen = true;
+                    html.push('<section class="ai-section">');
+                    html.push(`<h3>${formatInlineMarkdown(headingMatch[1])}</h3>`);
+                    return;
+                }
+
+                const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+                if (bulletMatch) {
+                    if (listType !== 'ul') {
+                        closeList();
+                        html.push('<ul>');
+                        listType = 'ul';
+                    }
+                    html.push(`<li>${formatInlineMarkdown(bulletMatch[1])}</li>`);
+                    return;
+                }
+
+                const numberedMatch = line.match(/^\d+\.\s+(.*)$/);
+                if (numberedMatch) {
+                    if (listType !== 'ol') {
+                        closeList();
+                        html.push('<ol>');
+                        listType = 'ol';
+                    }
+                    html.push(`<li>${formatInlineMarkdown(numberedMatch[1])}</li>`);
+                    return;
+                }
+
+                closeList();
+                html.push(`<p>${formatInlineMarkdown(line)}</p>`);
+            });
+
+            closeSection();
+            output.innerHTML = html.join('') || escapeHtml(markdownText);
+        }
+
+        function setPlainAiOutput(message) {
+            aiFeedbackGeneratedAt = null;
+            updateAiPrintMeta();
+            const output = document.getElementById('aiFeedbackOutput');
+            output.classList.add('plain');
+            output.textContent = message;
+        }
+
+        async function generateAiFeedback() {
+            const button = document.getElementById('generateAiFeedbackBtn');
+            const api = getLanguageModelApi();
+            if (!latestAnalysisContext) return;
+            const prompt = buildAiPrompt(latestAnalysisContext);
+            if (!api || !promptApiStatus.canAttempt) {
+                const copied = await copyTextToClipboard(prompt);
+                setAiStatus(copied ? 'Chrome Prompt API is unavailable, so the AI-ready prompt was copied to your clipboard.' : 'Chrome Prompt API is unavailable. Select and copy the AI-ready prompt below into your preferred AI tool.', copied ? 'ready' : 'waiting');
+                setPlainAiOutput(prompt);
+                return;
+            }
+            button.disabled = true;
+            setPlainAiOutput('Generating on-device AI feedback...');
+            let session;
+            try {
+                const sessionOptions = {
+                    systemPrompt: 'You write concise workplace coaching feedback from assessment scores.',
+                    monitor(monitor) {
+                        monitor.addEventListener('downloadprogress', (event) => {
+                            const loaded = Number.isFinite(event.loaded) ? Math.round(event.loaded * 100) : null;
+                            const progress = loaded === null ? '' : ` (${loaded}%)`;
+                            setAiStatus(`Downloading Gemini Nano for Chrome Prompt API${progress}... Keep this tab open.`, 'waiting');
+                            setPlainAiOutput(`Downloading the on-device AI model${progress}. Feedback will start automatically when the download completes.`);
+                        });
+                    }
+                };
+                if (typeof api.create === 'function') {
+                    session = await api.create(sessionOptions);
+                } else {
+                    session = await api.createTextSession(sessionOptions);
+                }
+                promptApiStatus = { ...promptApiStatus, available: true, canAttempt: true };
+                setAiStatus('Prompt API ready. Generating private on-device feedback...', 'ready');
+                const response = await session.prompt(prompt);
+                renderAiFeedback(response.trim());
+            } catch (error) {
+                setPlainAiOutput(`AI feedback could not be generated: ${error.message || error}. Check that Chrome built-in AI is enabled, that this page is served from http://localhost or HTTPS, and that Chrome is allowed to download Gemini Nano.`);
+                await refreshPromptApiStatus();
+                if (!promptApiStatus.canAttempt) {
+                    const copied = await copyTextToClipboard(prompt);
+                    setPlainAiOutput(`${copied ? 'The AI-ready prompt was copied to your clipboard because on-device generation failed.' : 'On-device generation failed. Select and copy this AI-ready prompt into your preferred AI tool.'}\n\n${prompt}`);
+                }
+            } finally {
+                if (session && typeof session.destroy === 'function') session.destroy();
+                updateAiButtonState();
+            }
+        }
+
         document.getElementById('submitBtn').onclick = () => {
             const coreScores = calculateScoresForRows(coreTraitsData);
             const extendedScores = calculateScoresForRows(extendedTraitsData);
-            let scores = coreScores.map((score, idx) => score + extendedScores[idx]);
+            let scores = coreScores.map((score, idx) => score + (extendedModeEnabled ? extendedScores[idx] : 0));
 
             document.getElementById('assessmentContainer').classList.add('hidden');
             document.getElementById('resultsSection').classList.remove('hidden');
@@ -438,7 +769,7 @@
             Object.keys(styleDetails).forEach((key, i) => {
                 const s = styleDetails[key];
                 const score = scores[i];
-                const coreExtendedText = `<div class="text-[10px] text-slate-400 font-semibold mt-1">Core: ${coreScores[i]} | Extended: ${extendedScores[i]}</div>`;
+                const coreExtendedText = extendedModeEnabled ? `Core ${coreScores[i]} · Ext ${extendedScores[i]}` : `Core ${coreScores[i]}`;
                 const maxPossibleScore = getActiveTraitsData().length * 4;
                 const highThreshold = Math.ceil(maxPossibleScore * 0.8);
                 const mediumThreshold = Math.ceil(maxPossibleScore * 0.55);
@@ -446,17 +777,19 @@
                 let strengthColor = score >= highThreshold ? "bg-red-500 text-white" : (score >= mediumThreshold ? "bg-amber-500 text-white" : "bg-slate-200 text-slate-700");
 
                 summary.innerHTML += `
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full" style="background-color: ${s.color}"></div>
-                            <span class="font-bold text-slate-800">${s.name}</span>
+                    <div class="p-3 rounded-xl bg-white border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${s.color}"></div>
+                                <span class="font-bold text-slate-800 truncate">${s.name}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-xl font-black text-slate-900">${score}</span>
+                                <span class="px-2 py-0.5 text-[9px] font-black rounded-full ${strengthColor}">${strength}</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-2xl font-black text-slate-900">${score}</span>
-                            <span class="px-3 py-1 text-[10px] font-black rounded-full ${strengthColor}">${strength}</span>
-                        </div>
-                    </div>
-                    ${coreExtendedText}`;
+                        <div class="mt-1 text-[10px] text-slate-400 font-semibold">${coreExtendedText}</div>
+                    </div>`;
 
                 profiles.innerHTML += `
                     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
@@ -479,7 +812,23 @@
                         </div>
                     </div>`;
             });
+            const styleKeys = ['col1', 'col2', 'col3', 'col4'];
+            const totalDiff = coreScores.map((score, idx) => Math.abs(score - extendedScores[idx]));
+            const stableStyleIdx = totalDiff.indexOf(Math.min(...totalDiff));
+            const shiftingStyleIdx = totalDiff.indexOf(Math.max(...totalDiff));
+            const normalizedGap = extendedModeEnabled ? Math.round((totalDiff.reduce((a, b) => a + b, 0) / Math.max(1, coreScores.reduce((a, b) => a + b, 0) + extendedScores.reduce((a, b) => a + b, 0))) * 100) : 0;
+            latestAnalysisContext = {
+                participantName: participantNameInput.value.trim(),
+                extendedModeEnabled,
+                styles: styleKeys.map((key, idx) => ({ name: styleDetails[key].name, score: scores[idx], coreScore: coreScores[idx], extendedScore: extendedScores[idx] })),
+                stableStyle: extendedModeEnabled ? styleDetails[styleKeys[stableStyleIdx]].name : 'Extended mode not enabled',
+                shiftingStyle: extendedModeEnabled ? styleDetails[styleKeys[shiftingStyleIdx]].name : 'Extended mode not enabled',
+                adaptabilityRange: normalizedGap
+            };
+            aiFeedbackGeneratedAt = null;
+            setPlainAiOutput('AI coaching feedback has not been generated yet. Use Generate AI Feedback before printing to include the personalized coaching narrative in this business report. If Chrome Prompt API is unavailable, this section will show the AI-ready prompt for external review.');
             updateAdvancedInsights(coreScores, extendedScores);
+            refreshPromptApiStatus();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
@@ -512,8 +861,7 @@
                 try {
                     const imported = JSON.parse(event.target.result);
                     const importedRows = Object.keys(imported).filter(r => /^\d+$/.test(r));
-                    initResponseBuckets();
-                    importedRows.forEach(r => { if (typeof imported[r] === 'object' && imported[r] !== null && userResponses[r]) userResponses[r] = imported[r]; });
+                    importedRows.forEach(r => { if (typeof imported[r] === 'object' && imported[r] !== null) userResponses[r] = imported[r]; });
                     updateGridUI();
                 } catch (err) { alert("Invalid file format."); }
             };
@@ -554,14 +902,15 @@
                     const userDoc = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'assessment');
                     const snap = await getDoc(userDoc);
                     if (snap.exists()) {
-                        const cloudResponses = snap.data().responses || {};
-                        initResponseBuckets(false);
-                        Object.keys(cloudResponses).forEach(r => { if (typeof cloudResponses[r] === 'object' && cloudResponses[r] !== null && userResponses[r]) userResponses[r] = cloudResponses[r]; });
+                        userResponses = snap.data().responses;
                         updateGridUI();
                     }
                 } catch (e) { console.error(e); }
             };
         }
+
+        document.getElementById('generateAiFeedbackBtn').onclick = generateAiFeedback;
+        window.addEventListener('beforeprint', () => updateAiPrintMeta(promptApiStatus.message));
 
         document.getElementById('resetBtn').onclick = () => { if(confirm("Reset all scores?")) { initResponseBuckets(false); renderQuestionGrid(); updateGridUI(); document.getElementById('assessmentContainer').classList.remove('hidden'); document.getElementById('resultsSection').classList.add('hidden'); } };
 
@@ -569,6 +918,7 @@
         renderQuestionGrid();
         initAuth();
         updateGridUI();
+        refreshPromptApiStatus();
 
     </script>
 </body>
