@@ -713,6 +713,19 @@ Keep it supportive, concrete, and under 450 words.`;
                 const dominant = getDominantStyle(member);
                 return `- ${member.name}: ${dominant.name}; scores Driver=${member.scores[0]}, Expressive=${member.scores[1]}, Amiable=${member.scores[2]}, Analytical=${member.scores[3]}; max score ${member.maxScore || 20}`;
             }).join('\n');
+            const interactionPairs = [];
+            for (let i = 0; i < teamData.length; i++) {
+                for (let j = i + 1; j < teamData.length; j++) {
+                    const memberA = teamData[i];
+                    const memberB = teamData[j];
+                    const dominantA = getDominantStyle(memberA);
+                    const dominantB = getDominantStyle(memberB);
+                    interactionPairs.push(`- ${memberA.name} (${dominantA.name}) with ${memberB.name} (${dominantB.name})`);
+                }
+            }
+            const pairText = interactionPairs.length
+                ? interactionPairs.join('\n')
+                : '- Only one member uploaded, so describe how that member may interact with future teammates by name.';
             return `You are an executive team facilitator. Analyze Social Style assessment data without diagnosing personality or making medical claims. Create a polished, boardroom-ready leadership brief that is concise, specific, and action-oriented.
 
 Team size: ${teamData.length}
@@ -720,6 +733,9 @@ Dominant style counts: Driver=${counts[0]}, Expressive=${counts[1]}, Amiable=${c
 Team averages: ${avgText}
 Members:
 ${memberText}
+
+Named interaction pairs to consider:
+${pairText}
 
 Return Markdown with these headings exactly:
 # Executive Summary
@@ -733,7 +749,7 @@ Return Markdown with these headings exactly:
 ## Next Meeting Facilitation Plan
 ## Recommended Team Agreements
 
-For the Team Interaction Map, explain how the specific mix of uploaded members is likely to interact in meetings, decisions, handoffs, disagreement, and follow-through. For Potential Conflict Patterns, identify likely friction points between styles without blaming individuals. For Conflict Prevention Recommendations, give concrete behavior agreements leaders can use before tension escalates. Use a professional executive tone, emphasize observable workplace behaviors, include clear actions for leaders, avoid jargon, remain non-judgmental, and keep the report under 1,000 words.`;
+For Individual Leadership Notes, name every uploaded member. For the Team Interaction Map, describe likely interactions between named members (for example, "Alex may help Jordan...") in meetings, decisions, handoffs, disagreement, and follow-through; do not write this section as generic Driver/Expressive/Amiable/Analytical style commentary. For Potential Conflict Patterns, identify likely friction points between named members or named working pairs without blaming individuals; mention style labels only as supporting context after the names. For Conflict Prevention Recommendations and Recommended Team Agreements, give concrete behavior agreements leaders can assign to named members or pairs before tension escalates. Use a professional executive tone, emphasize observable workplace behaviors, include clear actions for leaders, avoid jargon, remain non-judgmental, and keep the report under 1,000 words.`;
         }
 
         async function generateTeamAiCommentary() {
