@@ -11,10 +11,11 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository includes five static HTML entry points:
+This repository includes six static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
+- **`profiler.html`**: individual extended-only profile deep-dive with all 10 ranking sets always enabled and no Extended Deep-Dive toggle.
 - **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available, with generated Markdown rendered into styled report sections and a copyable fallback prompt for unsupported browsers.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
   - individual assessment,
@@ -31,7 +32,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open `index.html`, `profile.html`, `profile-ai.html`, `team.html`, or `team-ai.html` in a modern browser.
+2. Open `index.html`, `profile.html`, `profiler.html`, `profile-ai.html`, `team.html`, or `team-ai.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -45,6 +46,7 @@ Then open one of:
 ```text
 http://localhost:8000/index.html
 http://localhost:8000/profile.html
+http://localhost:8000/profiler.html
 http://localhost:8000/profile-ai.html
 http://localhost:8000/team.html
 http://localhost:8000/team-ai.html
@@ -52,21 +54,21 @@ http://localhost:8000/team-ai.html
 
 ## Basic controls
 
-### Individual assessment (`index.html`, `profile.html`, and `profile-ai.html`)
+### Individual assessment (`index.html`, `profile.html`, `profiler.html`, and `profile-ai.html`)
 
 - **Rank buttons (1–4):** For each row, assign each rank exactly once across the four traits.
 - **Total Scores:** Auto-updates as you complete each set.
-- **Export:** Saves your current assessment responses to a local JSON file. In `profile.html` and `profile-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
+- **Export:** Saves your current assessment responses to a local JSON file. In `profile.html`, `profiler.html`, and `profile-ai.html`, add your name before exporting to include a sanitized version of it in the filename.
 - **Import:** Restores responses from a previously exported JSON file.
 - **Reset:** Clears all responses and starts over.
 - **Print:** Use the browser print dialog to generate a printable version of results. In `profile-ai.html`, the print report is formatted as a compact business-ready report with deliberate page breaks so the profile overview, AI Coaching Feedback, and style reference sections each start on their own page and avoid mid-section splits when printed.
 
-### Profile Deep-Dive controls (`profile.html` and `profile-ai.html`)
+### Profile Deep-Dive controls (`profile.html`, `profiler.html`, and `profile-ai.html`)
 
-- **Enable Extended Deep-Dive:** Adds 5 more ranking sets (10 total) while preserving any existing core answers.
+- **Enable Extended Deep-Dive:** In `profile.html` and `profile-ai.html`, adds 5 more ranking sets (10 total) while preserving any existing core answers. In `profiler.html`, Extended Deep-Dive is always on and the toggle is removed.
 - **Core / Extended score breakdown:** Results separate the baseline 5-set score from the extended 5-set score.
 - **Extended Signal Insights:** Shows the most stable style signal, biggest context shift, and an adaptability range percentage after analysis.
-- **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode.
+- **Extended import detection:** Importing a JSON file with rows 06–10 automatically enables Extended Deep-Dive mode in toggle-based profile pages. `profiler.html` always imports into the 10-set extended flow.
 
 ### AI profile controls (`profile-ai.html`)
 
@@ -106,7 +108,7 @@ Then verify:
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
 - (`team.html` and `team-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis.
+- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
 - (`profile-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
 - (`team-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
 
