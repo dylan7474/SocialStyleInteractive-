@@ -11,7 +11,7 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 ## Application variants
 
-This repository includes seven static HTML entry points:
+This repository includes eight static HTML entry points:
 
 - **`index.html`**: core individual self-assessment flow (single participant).
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
@@ -24,6 +24,7 @@ This repository includes seven static HTML entry points:
   - interaction lab,
   - peer-to-peer synergy analysis.
 - **`team-ai.html`**: AI-enabled team experience that keeps the `team.html` workflow and adds an executive-style AI Commentary report for generated member leadership notes and team dynamics commentary using Chrome's built-in Prompt API / Gemini Nano when available, with a copyable AI prompt fallback for unsupported browsers.
+- **`TeamPro-ai.html`**: AI-enabled extended-only team experience with all 10 ranking sets always enabled, no Extended Deep-Dive toggle, and the same team dashboard, interaction lab, synergy, and AI Commentary workflow as `team-ai.html`.
 
 Use whichever file best matches your facilitation context.
 
@@ -33,7 +34,7 @@ Because this project is static HTML/CSS/JS, there is no package install or compi
 
 ### Option 1: Open directly
 1. Clone this repository.
-2. Open `index.html`, `profile.html`, `profiler.html`, `profile-ai.html`, `profiler-ai.html`, `team.html`, or `team-ai.html` in a modern browser.
+2. Open `index.html`, `profile.html`, `profiler.html`, `profile-ai.html`, `profiler-ai.html`, `team.html`, `team-ai.html`, or `TeamPro-ai.html` in a modern browser.
 
 ### Option 2: Serve locally (recommended)
 Using Python:
@@ -52,6 +53,7 @@ http://localhost:8000/profile-ai.html
 http://localhost:8000/profiler-ai.html
 http://localhost:8000/team.html
 http://localhost:8000/team-ai.html
+http://localhost:8000/TeamPro-ai.html
 ```
 
 ## Basic controls
@@ -79,16 +81,16 @@ http://localhost:8000/team-ai.html
 - **Privacy note:** AI feedback runs in the browser through Chrome/Gemini Nano when supported; this page does not send the assessment to an app server or require an API key. The fallback prompt is only copied/displayed locally until the user pastes it elsewhere.
 - **Availability note:** If Chrome reports the model as downloadable or downloading, the Generate AI Feedback button stays enabled and shows download progress while Gemini Nano is installed.
 
-### Team-specific controls (`team.html` and `team-ai.html`)
+### Team-specific controls (`team.html`, `team-ai.html`, and `TeamPro-ai.html`)
 
 - **Upload Team Profiles:** Import multiple participant JSON files at once.
 - **Team Dashboard:** Review member distribution and aggregate style balance.
 - **Interaction Lab:** Review recommendations based on team composition.
 - **Team Synergy:** Compare any two members and inspect likely collaboration/tension patterns.
-- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` or `team-ai.html` to compare baseline style signals vs contextual style shifts.
-- **Reset Form (team assessment):** Clears all ranked rows, returns to baseline 5-row mode, and hides current analysis results.
+- **Extended Deep-Dive (optional):** Add 5 extra ranking sets in `team.html` or `team-ai.html` to compare baseline style signals vs contextual style shifts. In `TeamPro-ai.html`, the extended 10-set assessment is always active and the toggle is removed.
+- **Reset Form (team assessment):** Clears all ranked rows and hides current analysis results. In `team.html` and `team-ai.html`, reset returns to baseline 5-row mode; in `TeamPro-ai.html`, reset keeps all 10 rows available.
 
-### AI team commentary controls (`team-ai.html`)
+### AI team commentary controls (`team-ai.html` and `TeamPro-ai.html`)
 
 - **Generate AI Commentary:** After uploading team profile JSON files, creates individual member profile notes plus overall team dynamics commentary.
 - **Copy AI Prompt fallback:** If Chrome Prompt API/Gemini Nano is unavailable, the same control displays an AI-ready prompt that can be copied into another AI tool.
@@ -109,10 +111,10 @@ Then verify:
 - Totals update correctly.
 - Export/import still works for JSON files.
 - Results render correctly and print styles hide controls.
-- (`team.html` and `team-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
-- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html` and `profiler-ai.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
+- (`team.html`, `team-ai.html`, and `TeamPro-ai.html`) Multi-file upload works and team/synergy tabs populate correctly.
+- (`profile.html`, `profile-ai.html`, `team.html`, and `team-ai.html`) Extended mode can be toggled on/off and shows additional insight cards after analysis. (`profiler.html`, `profiler-ai.html`, and `TeamPro-ai.html`) Extended mode is always active, shows all 10 rows immediately, and has no Extended Deep-Dive toggle.
 - (`profile-ai.html` and `profiler-ai.html`) Chrome Prompt API availability status appears after analysis, AI feedback can be generated in a supported Chrome desktop browser, and the print report includes the AI Coaching Feedback section with professional report formatting.
-- (`team-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
+- (`team-ai.html` and `TeamPro-ai.html`) AI Commentary status appears after team upload, executive summary cards populate, generated member profiles/team dynamics commentary renders as a styled executive report in a supported Chrome desktop browser, unsupported browsers show the copyable fallback prompt, and Print Executive Report hides controls with professional pagination.
 
 ## Roadmap
 
