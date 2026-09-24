@@ -1,6 +1,6 @@
 # Social Style Preferences Interactive Assessment
 
-https://dylan7474.github.io/SocialStyleInteractive/
+https://dylan7474.github.io/SocialStyleInteractive-/
 
 A lightweight, single-page web app for running a **Social Style Preferences** self-assessment based on the Bolton & Bolton model. Participants rank behavioral traits across five sets to reveal their dominant communication style across four quadrants:
 
