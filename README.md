@@ -15,9 +15,8 @@ The app calculates totals in real time, visualizes outcomes, and provides profil
 
 This repository includes the following static HTML entry points:
 
-- **`index.html`**: core individual self-assessment flow (single participant).
+- **`index.html`**: individual extended-only profile deep-dive with all 10 ranking sets always enabled and no Extended Deep-Dive toggle.
 - **`profile.html`**: individual self-assessment with the optional Extended Deep-Dive from `team.html`, including 10-set scoring, core/extended score breakdowns, stability, context-shift, and adaptability insights.
-- **`profiler.html`**: individual extended-only profile deep-dive with all 10 ranking sets always enabled and no Extended Deep-Dive toggle.
 - **`profile-ai.html`**: AI-enabled profile deep-dive that adds optional on-device coaching feedback through Chrome's built-in Prompt API / Gemini Nano when available, with generated Markdown rendered into styled report sections and a copyable fallback prompt for unsupported browsers.
 - **`team.html`**: expanded “Social Style Pro” experience with tabs for:
   - individual assessment,
